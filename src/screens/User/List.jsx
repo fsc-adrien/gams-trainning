@@ -1,7 +1,10 @@
 import React from 'react';
-import { CloseOutlined, SearchOutlined, PlusSquareFilled, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { Table, Input, Tooltip } from 'antd';
+import {CloseOutlined, SearchOutlined, PlusSquareFilled, EditOutlined, DeleteOutlined} from '@ant-design/icons';
+import {Table, Input, Tooltip} from 'antd';
 import './List.scss'
+import axios from 'axios';
+import {connect} from 'react-redux';
+import {addUser, deleteUser, editUser} from "../../components/Action/action";
 
 const columns = [
     {
@@ -10,7 +13,7 @@ const columns = [
         dataIndex: 'action',
         key: 'action',
         fixed: 'left',
-        render: () => <div><EditOutlined /> <DeleteOutlined className='pl-2' /></div>,
+        render: () => <div><EditOutlined/> <DeleteOutlined className='pl-2'/></div>,
     },
     {
         title: 'Name',
@@ -51,24 +54,33 @@ for (let i = 0; i < 20; i++) {
 
 class UserList extends React.Component {
 
-    render(){
+    componentDidMount() {
+        axios.get(`https://5efc5010cf235d0016ad747a.mockapi.io/api/v1/user`)
+            .then(res => {
+                const users = res.data;
+                this.setState({users});
+            })
+    }
+
+
+    render() {
         return (
             <div>
                 <div className='ul-header'>
                     <h1 className='ul-header-title pr-10p'>Editable Example</h1>
                     <Input
                         placeholder="Search"
-                        prefix={<SearchOutlined className="site-form-item-icon" />}
+                        prefix={<SearchOutlined className="site-form-item-icon"/>}
                         suffix={
                             <Tooltip title="Close">
-                                <CloseOutlined style={{ color: 'rgba(0,0,0,.45)' }} />
+                                <CloseOutlined style={{color: 'rgba(0,0,0,.45)'}}/>
                             </Tooltip>
                         }
                     />
-                    <PlusSquareFilled className='pl-2p' style={{ fontSize : '24px' }} />
+                    <PlusSquareFilled className='pl-2p' style={{fontSize: '24px'}}/>
 
                 </div>
-                <Table columns={columns} dataSource={data} scroll={{ x: 1500, y: 300 }} />,
+                <Table columns={columns} dataSource={data} scroll={{x: 1500, y: 300}}/>,
             </div>
 
         )
@@ -76,4 +88,24 @@ class UserList extends React.Component {
 
 }
 
-export default UserList
+const mapStateToProps = (state) => {
+    return {
+        listUser: state.users
+    }
+}
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addUser: (id) => {
+            dispatch(addUser(id))
+        },
+        editUser: (id) => {
+            dispatch(editUser(id))
+        },
+        deleteUser: (id) => {
+            dispatch(deleteUser(id))
+        },
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserList)
