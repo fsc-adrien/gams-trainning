@@ -1,8 +1,5 @@
 import { ADD_USER, DELETE_USER, EDIT_USER } from "../Action/constant";
 
-import {createStore} from "redux";
-
-const store = createStore(reducer);
 
 const initState ={
     users: []
@@ -26,3 +23,5 @@ const reducer = (state = initState, action) => {
             return state;
     }
 }
+
+export default reducer;

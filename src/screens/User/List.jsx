@@ -3,7 +3,7 @@ import {CloseOutlined, SearchOutlined, PlusSquareFilled, EditOutlined, DeleteOut
 import {Table, Input, Tooltip} from 'antd';
 import './List.scss'
 import axios from 'axios';
-import {connect} from 'react-redux';
+import {connect, Provider} from 'react-redux'
 import {addUser, deleteUser, editUser} from "../../components/Action/action";
 
 const columns = [
@@ -62,12 +62,11 @@ class UserList extends React.Component {
             })
     }
 
-
     render() {
         return (
             <div>
                 <div className='ul-header'>
-                    <h1 className='ul-header-title pr-10p'>Editable Example</h1>
+                    <h1 className='ul-header-title pr-10p'>Users</h1>
                     <Input
                         placeholder="Search"
                         prefix={<SearchOutlined className="site-form-item-icon"/>}
@@ -80,9 +79,8 @@ class UserList extends React.Component {
                     <PlusSquareFilled className='pl-2p' style={{fontSize: '24px'}}/>
 
                 </div>
-                <Table columns={columns} dataSource={data} scroll={{x: 1500, y: 300}}/>,
+                <Table columns={columns} dataSource={data} scroll={{x: 1500, y: 300}}/>
             </div>
-
         )
     }
 
@@ -108,4 +106,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserList)
+export default connect(mapStateToProps, mapDispatchToProps)(UserList);
