@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import UserList from './screens/User/List'
 import 'antd/dist/antd.css';
+import Asset from "./screens/User/Asset";
 import * as HttpStatus from './components/common/HttpStatus'
 
 
@@ -41,7 +42,7 @@ export default function App() {
 
                 <Switch>
                     <Route path="/assets">
-                        <Assets />
+                        <Asset />
                     </Route>
                     <Route path="/">
                             <UserList />
@@ -52,6 +53,3 @@ export default function App() {
     );
 }
 
-function Assets() {
-    return <h2>Assets</h2>;
-}
