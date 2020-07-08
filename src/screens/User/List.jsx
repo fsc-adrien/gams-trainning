@@ -1,72 +1,102 @@
 import React from 'react';
-import {CloseOutlined, SearchOutlined, PlusSquareFilled, EditOutlined, DeleteOutlined} from '@ant-design/icons';
-import {Table, Input, Tooltip} from 'antd';
+import {CloseOutlined, SearchOutlined, PlusSquareFilled} from '@ant-design/icons';
+import {Table, Input, Tooltip, Popconfirm} from 'antd';
 import './List.scss'
 import axios from 'axios';
-import {connect, Provider} from 'react-redux'
+import {connect} from 'react-redux'
 import {addUser, deleteUser, editUser} from "../../components/Action/action";
-
-const columns = [
-    {
-        title: 'Action',
-        width: 100,
-        dataIndex: 'action',
-        key: 'action',
-        fixed: 'left',
-        render: () => <div><EditOutlined/> <DeleteOutlined className='pl-2'/></div>,
-    },
-    {
-        title: 'Name',
-        width: 100,
-        dataIndex: 'name',
-        key: 'name',
-    },
-    {
-        title: 'Surname',
-        dataIndex: 'surname',
-        key: '1',
-        width: 150,
-    },
-    {
-        title: 'Birth Year',
-        dataIndex: 'birth_year',
-        key: '2',
-        width: 150,
-    },
-    {
-        title: 'Birth Place',
-        dataIndex: 'place',
-        key: '2',
-        width: 150,
-    },
-];
-
-const data = [];
-for (let i = 0; i < 20; i++) {
-    data.push({
-        key: i,
-        name: `Edrward ${i + 1}`,
-        surname: 'Snowden',
-        birth_year: '1995',
-        place: `London Park no. ${20 - i}`,
-    });
-}
 
 class UserList extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.columns = [
+            {
+                title: 'First Name',
+                dataIndex: 'firstName',
+                width: 70,
+                sorter: (a, b) => a.firstName < b.firstName,
+                sortDirections: ['descend'],
+                render: text => <span style={{marginLeft: '20px', fontWeight: 600}}>{text}</span>,
+            },
+            {
+                title: 'Last Name',
+                dataIndex: 'surName',
+                width: 70,
+            },
+            {
+                title: 'Email',
+                dataIndex: 'email',
+                width: 70,
+            },
+            {
+                title: 'BirthYear',
+                dataIndex: 'birthYear',
+                width: 70,
+                sorter: (a, b) => a.birthYear < b.birthYear,
+                sortDirections: ['descend'],
+                render: text => <span style={{fontWeight: 600}}>{text}</span>,
+            },
+            {
+                title: 'City',
+                dataIndex: 'birthPlace',
+                width: 70,
+            },
+            {
+                title: 'Role',
+                dataIndex: 'role',
+                width: 30,
+            },
+            {
+                title: 'DU',
+                dataIndex: 'department',
+                width: 50,
+                sorter: (a, b) => a.department < b.department,
+                sortDirections: ['descend'],
+                render: text => <span style={{fontWeight: 600}}>{text}</span>,
+            },
+            {
+                title: 'Action',
+                width: 25,
+                dataIndex: 'action',
+                key: 'action',
+                fixed: 'left',
+                render: (text, record) =>
+                    this.state.users.length >= 1 ? (
+                        <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
+                            <a>Delete</a>
+                        </Popconfirm>
+                    ) : null,
+
+            },
+        ];
+    }
+
+    state = {
+        users: [],
+    }
+
+    handleDelete = id => {
+        const dataSource = [...this.state.users];
+        this.setState({
+            users: dataSource.filter(item => item.id !== id),
+        });
+    };
+
     componentDidMount() {
-        axios.get(`https://5efc5010cf235d0016ad747a.mockapi.io/api/v1/user`)
+        axios.get(`https://gams-temp.herokuapp.com/api/users/`)
             .then(res => {
-                const users = res.data;
+                const users = res.data.users;
                 this.setState({users});
             })
+            .catch(error => console.log(error))
     }
 
     render() {
         return (
             <div>
                 <div className='ul-header'>
-                    <h1 className='ul-header-title pr-10p'>Users</h1>
+                    <h1 className='ul-header-title pr-10p' style={{marginLeft: '30px'}}>CMC GLOBAL EMPLOYEES</h1>
                     <Input
                         placeholder="Search"
                         prefix={<SearchOutlined className="site-form-item-icon"/>}
@@ -76,10 +106,10 @@ class UserList extends React.Component {
                             </Tooltip>
                         }
                     />
-                    <PlusSquareFilled className='pl-2p' style={{fontSize: '24px'}}/>
+                    <PlusSquareFilled className='pl-2p' style={{fontSize: '24px', marginRight: '40px'}}/>
 
                 </div>
-                <Table columns={columns} dataSource={data} scroll={{x: 1500, y: 300}}/>
+                <Table style={{justifyContent:'center', alignItems:'center'}} columns={this.columns} dataSource={this.state.users} scroll={{x: 1300, y: 1000}}/>
             </div>
         )
     }
@@ -88,7 +118,7 @@ class UserList extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        listUser: state.users
+        users: state.users
     }
 }
 
