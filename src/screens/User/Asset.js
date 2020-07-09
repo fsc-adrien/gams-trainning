@@ -20,13 +20,13 @@ class Asset extends React.Component {
             <div>
                 <Tabs defaultActiveKey="1" onChange={callback}>
                     <TabPane tab="List" key="1">
-                        <TabList />
+                        {/*<TabList />*/}
                     </TabPane>
                     <TabPane tab="Detail" key="2">
-                        <TabDetail/>
+                        {/*<TabDetail/>*/}
                     </TabPane>
                     <TabPane tab="History" key="3">
-                        <TabHistory/>
+                        {/*<TabHistory/>*/}
                     </TabPane>
                 </Tabs>
             </div>

@@ -1,13 +1,90 @@
-import React from 'react';
-import {CloseOutlined, SearchOutlined, PlusSquareFilled} from '@ant-design/icons';
-import {Table, Input, Tooltip, Popconfirm} from 'antd';
-import './List.scss'
-import axios from 'axios';
-import {connect} from 'react-redux'
-import {addUser, deleteUser, editUser} from "../../components/Action/action";
+import React, {useContext, useState, useEffect, useRef} from 'react';
+import {Table, Input, Button, Popconfirm, Form} from 'antd';
+import axios from "axios";
+
+const EditableContext = React.createContext();
+
+const EditableRow = ({index, ...props}) => {
+    const [form] = Form.useForm();
+    return (
+        <Form form={form} component={false}>
+            <EditableContext.Provider value={form}>
+                <tr {...props} />
+            </EditableContext.Provider>
+        </Form>
+    );
+};
+
+const EditableCell = ({
+                          title,
+                          editable,
+                          children,
+                          dataIndex,
+                          record,
+                          handleSave,
+                          ...restProps
+                      }) => {
+    const [editing, setEditing] = useState(false);
+    const inputRef = useRef();
+    const form = useContext(EditableContext);
+    useEffect(() => {
+        if (editing) {
+            inputRef.current.focus();
+        }
+    }, [editing]);
+
+    const toggleEdit = () => {
+        setEditing(!editing);
+        form.setFieldsValue({
+            [dataIndex]: record[dataIndex],
+        });
+    };
+
+    const save = async e => {
+        try {
+            const values = await form.validateFields();
+            toggleEdit();
+            handleSave({...record, ...values});
+        } catch (errInfo) {
+            console.log('Save failed:', errInfo);
+        }
+    };
+
+    let childNode = children;
+
+    if (editable) {
+        childNode = editing ? (
+            <Form.Item
+                style={{
+                    margin: 0,
+                }}
+                name={dataIndex}
+                rules={[
+                    {
+                        required: true,
+                        message: `${title} is required.`,
+                    },
+                ]}
+            >
+                <Input ref={inputRef} onPressEnter={save} onBlur={save}/>
+            </Form.Item>
+        ) : (
+            <div
+                className="editable-cell-value-wrap"
+                style={{
+                    paddingRight: 24,
+                }}
+                onClick={toggleEdit}
+            >
+                {children}
+            </div>
+        );
+    }
+
+    return <td {...restProps}>{childNode}</td>;
+};
 
 class UserList extends React.Component {
-
     constructor(props) {
         super(props);
         this.columns = [
@@ -15,6 +92,7 @@ class UserList extends React.Component {
                 title: 'First Name',
                 dataIndex: 'firstName',
                 width: 70,
+                editable: true,
                 sorter: (a, b) => a.firstName < b.firstName,
                 sortDirections: ['descend'],
                 render: text => <span style={{marginLeft: '20px', fontWeight: 600}}>{text}</span>,
@@ -23,6 +101,7 @@ class UserList extends React.Component {
                 title: 'Last Name',
                 dataIndex: 'surName',
                 width: 70,
+                editable: true,
             },
             {
                 title: 'Email',
@@ -70,18 +149,11 @@ class UserList extends React.Component {
 
             },
         ];
+        this.state = {
+            users: [],
+            count: 2,
+        };
     }
-
-    state = {
-        users: [],
-    }
-
-    handleDelete = id => {
-        const dataSource = [...this.state.users];
-        this.setState({
-            users: dataSource.filter(item => item.id !== id),
-        });
-    };
 
     componentDidMount() {
         axios.get(`https://gams-temp.herokuapp.com/api/users/`)
@@ -92,48 +164,82 @@ class UserList extends React.Component {
             .catch(error => console.log(error))
     }
 
+    handleDelete = key => {
+        const users = [...this.state.users];
+        this.setState({
+            users: users.filter(item => item.key !== key),
+        });
+    };
+
+    handleAdd = () => {
+        const {count, users} = this.state;
+        const newData = {
+            key: count,
+            name: `Edward King ${count}`,
+            age: 32,
+            address: `London, Park Lane no. ${count}`,
+        };
+        this.setState({
+            users: [...this.state.users, newData],
+            count: count + 1,
+        });
+    };
+
+    handleSave = row => {
+        const newData = [...this.state.users];
+        const index = newData.findIndex(item => row.key === item.key);
+        const item = newData[index];
+        newData.splice(index, 1, {...item, ...row});
+        this.setState({
+            users: newData,
+        });
+    };
+
     render() {
+        const {users} = this.state;
+        const components = {
+            body: {
+                row: EditableRow,
+                cell: EditableCell,
+            },
+        };
+        const columns = this.columns.map(col => {
+            if (!col.editable) {
+                return col;
+            }
+
+            return {
+                ...col,
+                onCell: record => ({
+                    record,
+                    editable: col.editable,
+                    dataIndex: col.dataIndex,
+                    title: col.title,
+                    handleSave: this.handleSave,
+                }),
+            };
+        });
         return (
             <div>
-                <div className='ul-header'>
-                    <h1 className='ul-header-title pr-10p' style={{marginLeft: '30px'}}>CMC GLOBAL EMPLOYEES</h1>
-                    <Input
-                        placeholder="Search"
-                        prefix={<SearchOutlined className="site-form-item-icon"/>}
-                        suffix={
-                            <Tooltip title="Close">
-                                <CloseOutlined style={{color: 'rgba(0,0,0,.45)'}}/>
-                            </Tooltip>
-                        }
-                    />
-                    <PlusSquareFilled className='pl-2p' style={{fontSize: '24px', marginRight: '40px'}}/>
-
-                </div>
-                <Table style={{justifyContent:'center', alignItems:'center'}} columns={this.columns} dataSource={this.state.users} scroll={{x: 1300, y: 1000}}/>
+                <Button
+                    onClick={this.handleAdd}
+                    type="primary"
+                    style={{
+                        marginBottom: 16,
+                    }}
+                >
+                    Add a row
+                </Button>
+                <Table
+                    components={components}
+                    rowClassName={() => 'editable-row'}
+                    bordered
+                    dataSource={this.state.users}
+                    columns={columns}
+                />
             </div>
-        )
-    }
-
-}
-
-const mapStateToProps = (state) => {
-    return {
-        users: state.users
+        );
     }
 }
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        addUser: (id) => {
-            dispatch(addUser(id))
-        },
-        editUser: (id) => {
-            dispatch(editUser(id))
-        },
-        deleteUser: (id) => {
-            dispatch(deleteUser(id))
-        },
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(UserList);
+export default UserList;
