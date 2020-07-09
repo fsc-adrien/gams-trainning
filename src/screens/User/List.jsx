@@ -1,5 +1,6 @@
 import React, {useContext, useState, useEffect, useRef} from 'react';
-import {Table, Input, Button, Popconfirm, Form} from 'antd';
+import {CloseOutlined, SearchOutlined} from '@ant-design/icons';
+import {Table, Input, Button, Popconfirm, Form, Tooltip} from 'antd';
 import axios from "axios";
 
 const EditableContext = React.createContext();
@@ -95,36 +96,43 @@ class UserList extends React.Component {
                 editable: true,
                 sorter: (a, b) => a.firstName < b.firstName,
                 sortDirections: ['descend'],
-                render: text => <span style={{marginLeft: '20px', fontWeight: 600}}>{text}</span>,
+                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'Last Name',
                 dataIndex: 'surName',
                 width: 70,
                 editable: true,
+                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'Email',
                 dataIndex: 'email',
                 width: 70,
+                editable: true,
+                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'BirthYear',
                 dataIndex: 'birthYear',
                 width: 70,
+                editable: true,
                 sorter: (a, b) => a.birthYear < b.birthYear,
                 sortDirections: ['descend'],
-                render: text => <span style={{fontWeight: 600}}>{text}</span>,
+                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'City',
                 dataIndex: 'birthPlace',
                 width: 70,
+                editable: true,
+                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'Role',
                 dataIndex: 'role',
                 width: 30,
+                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'DU',
@@ -132,7 +140,7 @@ class UserList extends React.Component {
                 width: 50,
                 sorter: (a, b) => a.department < b.department,
                 sortDirections: ['descend'],
-                render: text => <span style={{fontWeight: 600}}>{text}</span>,
+                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'Action',
@@ -164,25 +172,37 @@ class UserList extends React.Component {
             .catch(error => console.log(error))
     }
 
-    handleDelete = key => {
+    handleDelete = id => {
         const users = [...this.state.users];
-        this.setState({
-            users: users.filter(item => item.key !== key),
-        });
+        axios.delete(`https://gams-temp.herokuapp.com/api/users/` + id)
+            .then(res => {
+                this.setState({
+                    users: users.filter(user => user.id !== id),
+                });
+            })
+            .catch(error => console.log(error))
+
     };
 
     handleAdd = () => {
         const {count, users} = this.state;
         const newData = {
-            key: count,
-            name: `Edward King ${count}`,
-            age: 32,
-            address: `London, Park Lane no. ${count}`,
+            firstName: '',
+            surName: '',
+            email: '',
+            birthYear: '',
+            birthPlace: '',
+            department: '',
+            role: '',
         };
-        this.setState({
-            users: [...this.state.users, newData],
-            count: count + 1,
-        });
+        axios.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
+            .then(res => {
+                this.setState({
+                    users: [...this.state.users, newData],
+                    count: count + 1,
+                })
+            })
+            .catch(error => console.log(error))
     };
 
     handleSave = row => {
@@ -221,11 +241,27 @@ class UserList extends React.Component {
         });
         return (
             <div>
+                <div className='ul-header'>
+                    <h1 className='ul-header-title pr-10p'>CMC GLOBAL EMPLOYEES</h1>
+                    <Input
+                        style={{maxWidth: '350px', float: 'right', marginRight: '20px'}}
+                        placeholder="Search"
+                        prefix={<SearchOutlined className="site-form-item-icon"/>}
+                        suffix={
+                            <Tooltip title="Close">
+                                <CloseOutlined style={{color: 'rgba(0,0,0,.45)'}}/>
+                            </Tooltip>
+                        }
+                    />
+
+                </div>
                 <Button
                     onClick={this.handleAdd}
                     type="primary"
                     style={{
-                        marginBottom: 16,
+                        marginTop: '20px',
+                        marginBottom: '20px',
+                        marginLeft: '20px'
                     }}
                 >
                     Add a row
