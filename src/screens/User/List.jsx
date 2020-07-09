@@ -1,6 +1,6 @@
 import React, {useContext, useState, useEffect, useRef} from 'react';
 import {CloseOutlined, SearchOutlined} from '@ant-design/icons';
-import {Table, Input, Button, Popconfirm, Form, Tooltip} from 'antd';
+import {Table, Input, Modal, Button, Popconfirm, Form, Tooltip} from 'antd';
 import axios from "axios";
 
 const EditableContext = React.createContext();
@@ -96,21 +96,21 @@ class UserList extends React.Component {
                 editable: true,
                 sorter: (a, b) => a.firstName < b.firstName,
                 sortDirections: ['descend'],
-                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'Last Name',
                 dataIndex: 'surName',
                 width: 70,
                 editable: true,
-                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'Email',
                 dataIndex: 'email',
                 width: 70,
                 editable: true,
-                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'BirthYear',
@@ -119,20 +119,20 @@ class UserList extends React.Component {
                 editable: true,
                 sorter: (a, b) => a.birthYear < b.birthYear,
                 sortDirections: ['descend'],
-                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'City',
                 dataIndex: 'birthPlace',
                 width: 70,
                 editable: true,
-                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'Role',
                 dataIndex: 'role',
                 width: 30,
-                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'DU',
@@ -140,7 +140,7 @@ class UserList extends React.Component {
                 width: 50,
                 sorter: (a, b) => a.department < b.department,
                 sortDirections: ['descend'],
-                render: text => <span style={{marginLeft: '20px', fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
             },
             {
                 title: 'Action',
@@ -160,6 +160,8 @@ class UserList extends React.Component {
         this.state = {
             users: [],
             count: 2,
+            visible: false,
+            inputValue: ''
         };
     }
 
@@ -187,23 +189,25 @@ class UserList extends React.Component {
     handleAdd = () => {
         const {count, users} = this.state;
         const newData = {
-            firstName: '',
-            surName: '',
-            email: '',
-            birthYear: '',
-            birthPlace: '',
-            department: '',
-            role: '',
+            key: count,
+            firstName: "Thienngulol",
+            surName: "Playboi",
+            birthYear: 1995,
+            birthPlace: "SOHO",
+            department: "DU1",
+            role: 7,
+            email: "bdthien@cmc.com.vn"
         };
         axios.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
             .then(res => {
-                this.setState({
-                    users: [...this.state.users, newData],
-                    count: count + 1,
-                })
-            })
-            .catch(error => console.log(error))
+                    this.setState({
+                        users: [...this.state.users, res.data.user],
+                        count: count + 1,
+                    })
+                }
+            )
     };
+
 
     handleSave = row => {
         const newData = [...this.state.users];
@@ -212,6 +216,24 @@ class UserList extends React.Component {
         newData.splice(index, 1, {...item, ...row});
         this.setState({
             users: newData,
+        });
+    };
+
+    showModal = () => {
+        this.setState({
+            visible: true,
+        });
+    };
+
+    handleOk = (e) => {
+        this.setState({
+            visible: false,
+        });
+    };
+
+    handleCancel = () => {
+        this.setState({
+            visible: false,
         });
     };
 
@@ -256,7 +278,7 @@ class UserList extends React.Component {
 
                 </div>
                 <Button
-                    onClick={this.handleAdd}
+                    onClick={this.showModal}
                     type="primary"
                     style={{
                         marginTop: '20px',
@@ -266,6 +288,21 @@ class UserList extends React.Component {
                 >
                     Add a row
                 </Button>
+                <Modal
+                    title="Basic Modal"
+                    visible={this.state.visible}
+                    onOk={this.handleOk}
+                    onCancel={this.handleCancel}
+                >
+                    FirstName: <Input/>
+                    SurName: <Input/>
+                    Email: <Input/>
+                    BirthYear: <Input/>
+                    City: <Input/>
+                    Role: <Input/>
+                    DU: <Input/>
+
+                </Modal>
                 <Table
                     components={components}
                     rowClassName={() => 'editable-row'}
