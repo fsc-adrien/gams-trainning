@@ -190,8 +190,8 @@ class UserList extends React.Component {
         const {count, users} = this.state;
         const newData = {
             key: count,
-            firstName: "Thienngulol",
-            surName: "Playboi",
+            firstName: "Thien123ABC",
+            surName: "James",
             birthYear: 1995,
             birthPlace: "SOHO",
             department: "DU1",
