@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import UserList from './screens/User/List'
 import 'antd/dist/antd.css';
-import ErrorBoundary from './components/error-boundaries/ErrorBoundary';
+import Asset from "./screens/User/Asset";
 import * as HttpStatus from './components/common/HttpStatus'
 
 
@@ -42,12 +42,10 @@ export default function App() {
 
                 <Switch>
                     <Route path="/assets">
-                        <Assets />
+                        <Asset />
                     </Route>
                     <Route path="/">
-                        <ErrorBoundary>
                             <UserList />
-                        </ErrorBoundary>
                     </Route>
                 </Switch>
             </div>
@@ -55,6 +53,3 @@ export default function App() {
     );
 }
 
-function Assets() {
-    return <h2>Assets</h2>;
-}
