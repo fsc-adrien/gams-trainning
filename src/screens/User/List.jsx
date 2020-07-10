@@ -2,6 +2,7 @@ import React, {useContext, useState, useEffect, useRef} from 'react';
 import {CloseOutlined, SearchOutlined} from '@ant-design/icons';
 import {Table, Input, Modal, Button, Popconfirm, Form, Tooltip} from 'antd';
 import axios from "axios";
+import SearchComponent from "./Search";
 
 const EditableContext = React.createContext();
 
@@ -170,6 +171,7 @@ class UserList extends React.Component {
                 role: '',
                 email: '',
             },
+            search: '',
         };
         this.onChange = this.onChange.bind(this);
     }
@@ -183,6 +185,44 @@ class UserList extends React.Component {
             .catch(error => console.log(error))
     }
 
+    handleSearch = () => {
+        console.log("searching..")
+        axios(
+            {
+                method: 'get',
+                url: `https://gams-temp.herokuapp.com/api/users/pages/?search=${this.state.search}`,
+                data: {
+                    currentpage: 1,
+                    numberofrecord: 5
+                }
+            }
+        )
+            .then(res => {
+                this.setState({
+                    users: res.data.users,
+                });
+            })
+            .catch(error => {
+                console.log('Error fetching and parsing data', error);
+            });
+    }
+
+    //handle close button in search bar
+    handleClose = () => {
+        this.setState({
+                search: '', //reset state of search
+            }
+        )
+    }
+
+    //get value after input in search bar
+    onSearchChange = e => {
+        this.setState({
+            search: e.target.value
+        })
+    }
+
+    //handle delete function
     handleDelete = id => {
         const users = [...this.state.users];
         axios.delete(`https://gams-temp.herokuapp.com/api/users/` + id)
@@ -195,6 +235,7 @@ class UserList extends React.Component {
 
     };
 
+    //handle function add a row of user to list
     handleAdd = () => {
         const {count, users} = this.state;
         const newData = {
@@ -209,11 +250,11 @@ class UserList extends React.Component {
         };
         axios.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
             .then(res => {
-                const newArray = [...this.state.users];
-                newArray.unshift( res.data.user)
+                    const newArray = [...this.state.users];
+                    newArray.unshift(res.data.user) //unshift to display item has been created upto the top
                     this.setState({
-                        users: newArray,
-                        visible: false,
+                        users: newArray, //update new array for users list
+                        visible: false, // close modal after click "OK" button
                         count: count + 1,
                         inputValue: {
                             firstName: '',
@@ -229,6 +270,7 @@ class UserList extends React.Component {
             )
     };
 
+    //get value after input in modal
     onChange(field, e) {
         this.setState({
             inputValue: {
@@ -248,12 +290,14 @@ class UserList extends React.Component {
         });
     };
 
+    // show modal to fill in info to add user to list
     showModal = () => {
         this.setState({
             visible: true,
         });
     };
 
+    //set visible or not after click OK in modal
     handleCancel = () => {
         this.setState({
             visible: false,
@@ -288,17 +332,12 @@ class UserList extends React.Component {
             <div>
                 <div className='ul-header'>
                     <h1 className='ul-header-title pr-10p'>CMC GLOBAL EMPLOYEES</h1>
-                    <Input
-                        style={{maxWidth: '350px', float: 'right', marginRight: '20px'}}
-                        placeholder="Search"
-                        prefix={<SearchOutlined className="site-form-item-icon"/>}
-                        suffix={
-                            <Tooltip title="Close">
-                                <CloseOutlined style={{color: 'rgba(0,0,0,.45)'}}/>
-                            </Tooltip>
-                        }
+                    <SearchComponent
+                        onSearchChange={this.onSearchChange}
+                        search={this.state.search}
+                        handleSearch={this.handleSearch}
+                        handleClose={this.handleClose}
                     />
-
                 </div>
                 <Button
                     onClick={this.showModal}
@@ -317,13 +356,18 @@ class UserList extends React.Component {
                     onOk={this.handleAdd}
                     onCancel={this.handleCancel}
                 >
-                    FirstName: <Input value={this.state.inputValue.firstName} onChange={(e) => this.onChange("firstName",e)}/>
-                    SurName: <Input value={this.state.inputValue.surName} onChange={(e) => this.onChange("surName",e)}/>
-                    Email: <Input value={this.state.inputValue.email} onChange={(e) => this.onChange("email",e)}/>
-                    BirthYear: <Input value={this.state.inputValue.birthYear} onChange={(e) => this.onChange("birthYear",e)}/>
-                    City: <Input value={this.state.inputValue.birthPlace} onChange={(e) => this.onChange("birthPlace",e)}/>
-                    Role: <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role",e)}/>
-                    DU: <Input value={this.state.inputValue.department} onChange={(e) => this.onChange("department",e)}/>
+                    FirstName: <Input value={this.state.inputValue.firstName}
+                                      onChange={(e) => this.onChange("firstName", e)}/>
+                    SurName: <Input value={this.state.inputValue.surName}
+                                    onChange={(e) => this.onChange("surName", e)}/>
+                    Email: <Input value={this.state.inputValue.email} onChange={(e) => this.onChange("email", e)}/>
+                    BirthYear: <Input value={this.state.inputValue.birthYear}
+                                      onChange={(e) => this.onChange("birthYear", e)}/>
+                    City: <Input value={this.state.inputValue.birthPlace}
+                                 onChange={(e) => this.onChange("birthPlace", e)}/>
+                    Role: <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role", e)}/>
+                    DU: <Input value={this.state.inputValue.department}
+                               onChange={(e) => this.onChange("department", e)}/>
                 </Modal>
                 <Table
                     components={components}
