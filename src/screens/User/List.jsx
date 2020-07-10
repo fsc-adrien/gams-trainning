@@ -161,8 +161,17 @@ class UserList extends React.Component {
             users: [],
             count: 2,
             visible: false,
-            inputValue: ''
+            inputValue: {
+                firstName: '',
+                surName: '',
+                birthYear: '',
+                birthPlace: '',
+                department: '',
+                role: '',
+                email: '',
+            },
         };
+        this.onChange = this.onChange.bind(this);
     }
 
     componentDidMount() {
@@ -190,24 +199,45 @@ class UserList extends React.Component {
         const {count, users} = this.state;
         const newData = {
             key: count,
-            firstName: "Thien123ABC",
-            surName: "James",
-            birthYear: 1995,
-            birthPlace: "SOHO",
-            department: "DU1",
-            role: 7,
-            email: "bdthien@cmc.com.vn"
+            firstName: this.state.inputValue.firstName,
+            surName: this.state.inputValue.surName,
+            birthYear: this.state.inputValue.birthYear,
+            birthPlace: this.state.inputValue.birthPlace,
+            department: this.state.inputValue.department,
+            role: this.state.inputValue.role,
+            email: this.state.inputValue.email,
         };
         axios.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
             .then(res => {
+                const newArray = [...this.state.users];
+                newArray.unshift( res.data.user)
                     this.setState({
-                        users: [...this.state.users, res.data.user],
+                        users: newArray,
+                        visible: false,
                         count: count + 1,
+                        inputValue: {
+                            firstName: '',
+                            surName: '',
+                            birthYear: '',
+                            birthPlace: '',
+                            department: '',
+                            role: '',
+                            email: '',
+                        },
                     })
                 }
             )
     };
 
+    onChange(field, e) {
+        this.setState({
+            inputValue: {
+                ...this.state.inputValue,
+                [field]: e.target.value,
+            }
+        })
+        console.log(e)
+    }
 
     handleSave = row => {
         const newData = [...this.state.users];
@@ -222,12 +252,6 @@ class UserList extends React.Component {
     showModal = () => {
         this.setState({
             visible: true,
-        });
-    };
-
-    handleOk = (e) => {
-        this.setState({
-            visible: false,
         });
     };
 
@@ -291,17 +315,16 @@ class UserList extends React.Component {
                 <Modal
                     title="Basic Modal"
                     visible={this.state.visible}
-                    onOk={this.handleOk}
+                    onOk={this.handleAdd}
                     onCancel={this.handleCancel}
                 >
-                    FirstName: <Input/>
-                    SurName: <Input/>
-                    Email: <Input/>
-                    BirthYear: <Input/>
-                    City: <Input/>
-                    Role: <Input/>
-                    DU: <Input/>
-
+                    FirstName: <Input value={this.state.inputValue.firstName} onChange={(e) => this.onChange("firstName",e)}/>
+                    SurName: <Input value={this.state.inputValue.surName} onChange={(e) => this.onChange("surName",e)}/>
+                    Email: <Input value={this.state.inputValue.email} onChange={(e) => this.onChange("email",e)}/>
+                    BirthYear: <Input value={this.state.inputValue.birthYear} onChange={(e) => this.onChange("birthYear",e)}/>
+                    City: <Input value={this.state.inputValue.birthPlace} onChange={(e) => this.onChange("birthPlace",e)}/>
+                    Role: <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role",e)}/>
+                    DU: <Input value={this.state.inputValue.department} onChange={(e) => this.onChange("department",e)}/>
                 </Modal>
                 <Table
                     components={components}
