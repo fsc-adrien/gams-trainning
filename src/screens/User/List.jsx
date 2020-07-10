@@ -236,7 +236,6 @@ class UserList extends React.Component {
                 [field]: e.target.value,
             }
         })
-        console.log(e)
     }
 
     handleSave = row => {
