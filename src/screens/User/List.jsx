@@ -187,16 +187,7 @@ class UserList extends React.Component {
 
     handleSearch = () => {
         console.log("searching..")
-        axios(
-            {
-                method: 'get',
-                url: `https://gams-temp.herokuapp.com/api/users/pages/?search=${this.state.search}`,
-                data: {
-                    currentpage: 1,
-                    numberofrecord: 5
-                }
-            }
-        )
+        axios.get(`https://gams-temp.herokuapp.com/api/users/?search=${this.state.search}`)
             .then(res => {
                 this.setState({
                     users: res.data.users,
