@@ -1,5 +1,5 @@
 .modal-add {
-    width: 70vw !important;
+    width: 95vw !important;
 
     &__section {
         display: flex;
@@ -7,7 +7,8 @@
         padding: 20px 0 0 0;
 
         &__item {
-            margin: 0 0 20px 0;
+            margin: 0 0 10px 0;
+            height: fit-content;
         }
     }
 
@@ -25,11 +26,12 @@
     display: flex;
     justify-content: space-around;
     align-items: flex-start;
-    margin: 0 20px;
+    margin: 0 20px 15px 0;
 
     &__name {
         margin-bottom: 0;
         margin-right: 10px;
+        font-weight: 600;
     }
 
     .require-text {
