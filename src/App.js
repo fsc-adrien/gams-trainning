@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import UserList from './screens/User/List'
 import 'antd/dist/antd.css';
-import Asset from "./screens/User/Asset";
+import Asset from "./screens/Asset";
 import * as HttpStatus from './components/common/HttpStatus'
 
 
@@ -45,7 +45,7 @@ export default function App() {
                         <Asset />
                     </Route>
                     <Route path="/">
-                            <UserList />
+                        <UserList />
                     </Route>
                 </Switch>
             </div>

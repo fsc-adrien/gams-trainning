@@ -1,11 +1,11 @@
-import { ADD_USER, DELETE_USER, EDIT_USER } from "../Action/constant";
+import { ADD_USER, DELETE_USER, EDIT_USER } from "../actions/constant";
 
 
-const initState ={
+const initState = {
     users: []
 }
 
-const reducer = (state = initState, action) => {
+const userReducer = (state = initState, action) => {
     switch (action.type) {
         case ADD_USER:
             return {
@@ -24,4 +24,4 @@ const reducer = (state = initState, action) => {
     }
 }
 
-export default reducer;
+export default userReducer;
