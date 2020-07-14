@@ -12,7 +12,10 @@ const ModalInput = ({
     type = 'input',
     placeholder,
     onChange,
-    optionSelectValue = [],
+    optionSelectValue = [{
+        name: "",
+        value: "",
+    }],
     disabled,
     ...rest
 }) => {

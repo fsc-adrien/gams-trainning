@@ -1,21 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./index.scss";
 import { Input, Button, Form } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import Logo from '../../asset/images/logo_cmc.png';
+import Loading from '../../components/Loading';
+import service from '../../utils/axiosService';
 
 export default function LoginScreens() {
     const [loading, setLoading] = useState(false);
     const history = useHistory();
+    const timer = null;
+
+    useEffect(() => {
+        return () => {
+            clearTimeout(timer);
+        }
+    }, [])
 
     // handle login 
     const handleSignIn = (values) => {
         console.log(values)
+        // fake loading
+        setLoading(true);
+        timer = setTimeout(() => {
+            setLoading(false);
+        }, 4000);
     }
 
     return (
         <div className="login">
+            {loading && <Loading />}
             <div className="loginWrapper">
                 <img
                     src={Logo}

@@ -8,7 +8,7 @@ export default function Header() {
     return (
         <Row>
             <nav className="header">
-                <Col span={4}>
+                <Col span={3}>
                     <div className="logo">
                         <img
                             src={Logo}

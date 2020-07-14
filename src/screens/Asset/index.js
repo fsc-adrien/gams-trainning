@@ -396,7 +396,7 @@ class Asset extends React.Component {
         const { isOpenAddAsset, type } = this.state;
         return (
             <div className="asset">
-                <Button onClick={this.handleToggleAddAsset}>Add asset</Button>
+                <Button onClick={this.handleToggleAddAsset} type="primary" className="addbtn">Add asset</Button>
                 {
                     isOpenAddAsset &&
                     <Modal
