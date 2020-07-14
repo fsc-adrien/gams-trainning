@@ -1,15 +1,14 @@
 import React from 'react';
 import './App.css';
 import {
-    BrowserRouter as Router,
     Switch,
     Route,
-    Link
 } from "react-router-dom";
-import UserList from './screens/User/List'
 import 'antd/dist/antd.css';
+import UserList from './screens/User/List';
 import Asset from "./screens/Asset";
-import * as HttpStatus from './components/common/HttpStatus'
+import LoginScreens from './screens/Login';
+import LayoutWrapper from './components/Layout';
 
 
 // function App() {
@@ -27,29 +26,15 @@ import * as HttpStatus from './components/common/HttpStatus'
 
 export default function App() {
     return (
-        <Router>
-            <div>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="/assets">Assets</Link>
-                        </li>
-                        <li>
-                            <Link to="/users">Users</Link>
-                        </li>
-                    </ul>
-                </nav>
-
-                <Switch>
-                    <Route path="/assets">
-                        <Asset />
-                    </Route>
-                    <Route path="/">
-                        <UserList />
-                    </Route>
-                </Switch>
-            </div>
-        </Router>
+        <div>
+            <Switch>
+                <Route exact path="/">
+                    <LoginScreens />
+                </Route>
+                <Route path="/assets" render={() => <LayoutWrapper component={Asset} />} />
+                <Route path="/users" render={() => <LayoutWrapper component={UserList} />} />
+            </Switch>
+        </div>
     );
 }
 

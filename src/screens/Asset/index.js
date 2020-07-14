@@ -1,16 +1,15 @@
 import React from "react";
-import { Tabs, Button, Modal, Row, Select, Col, Input, DatePicker } from 'antd';
+import { Tabs, Button, Modal, Row, Select, Col } from 'antd';
 import TabList from "./TabList";
 import TabDetail from "./TabDetail";
 import TabHistory from "./TabHistory";
 import "./index.scss";
+import ModalInput from "./ModalInput";
 
 function callback(key) {
     console.log(key);
 }
 const { TabPane } = Tabs;
-const { Option } = Select;
-const { TextArea } = Input;
 const typeValue = [
     {
         name: "Infomation Asset",
@@ -52,6 +51,7 @@ class Asset extends React.Component {
         }
     }
 
+    // open modal
     handleToggleAddAsset = () => {
         this.setState(prevState => {
             return {
@@ -62,12 +62,14 @@ class Asset extends React.Component {
         })
     }
 
+    // select type
     handleChooseSelect = (value) => {
         this.setState({
             type: value,
         })
     }
 
+    // select site
     handleChooseSite = (value) => {
         const { modalValue } = this.state;
         this.setState({
@@ -78,6 +80,7 @@ class Asset extends React.Component {
         })
     }
 
+    // change text
     handleChangeTextValue = (e) => {
         const { modalValue } = this.state;
         this.setState({
@@ -88,6 +91,7 @@ class Asset extends React.Component {
         })
     }
 
+    // select create date
     handleChangeCreateDate = (date) => {
         const { modalValue } = this.state;
         this.setState({
@@ -98,6 +102,7 @@ class Asset extends React.Component {
         })
     }
 
+    // select expose date
     handleChangeExposeDate = (date) => {
         const { modalValue } = this.state;
         this.setState({
@@ -108,253 +113,233 @@ class Asset extends React.Component {
         })
     }
 
+    // render general field of modal
+    renderGeneralField = (type) => {
+        return (
+            // General
+            <Row className="modal-add__section">
+                <p className="title">General</p>
+                <div className="seperate"></div>
+                <Row className="modal-add__section__item">
+                    <Col span={12}>
+                        <ModalInput
+                            type="textarea"
+                            label="Name"
+                            required
+                            name="name"
+                            onChange={this.handleChangeTextValue}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        {
+                            type === "physical" &&
+                            <ModalInput
+                                type="input"
+                                label="Unit"
+                                name="unit"
+                                onChange={this.handleChangeTextValue}
+                            />
+                        }
+                        <ModalInput
+                            type="textarea"
+                            label="Note"
+                            name="note"
+                            onChange={this.handleChangeTextValue}
+                        />
+                    </Col>
+                </Row>
+                {
+                    type === 'physical' &&
+                    <>
+                        <Row className="modal-add__section__item" style={{ height: '51px' }}>
+                            <Col span={12}>
+                                <ModalInput
+                                    type="input"
+                                    label="Associate asset"
+                                    name="associate"
+                                    onChange={this.handleChangeTextValue}
+                                    disabled
+                                />
+                            </Col>
+                        </Row>
+                        <Row className="modal-add__section__item">
+                            <Col span={12}>
+                                <ModalInput
+                                    type="select"
+                                    label="Site"
+                                    required
+                                    name="site"
+                                    placeholder="Select a site"
+                                    onChange={this.handleChooseSite}
+                                    optionSelectValue={['Hà Nội']}
+                                />
+                            </Col>
+                            <Col span={12}>
+                                <ModalInput
+                                    type="input"
+                                    label="PIC"
+                                    name="pic"
+                                    onChange={this.handleChangeTextValue}
+                                    disabled
+                                />
+                            </Col>
+                        </Row>
+                    </>
+                }
+            </Row>
+        )
+    }
+
+    // render creation field of modal
+    renderCreationField = (type) => {
+        return (
+            //Creation
+            <Row className="modal-add__section">
+                <p className="title">Creation</p>
+                <div className="seperate"></div>
+                <Row className="modal-add__section__item">
+                    <Col span={12}>
+                        <ModalInput
+                            type="input"
+                            label="Logic Add"
+                            name="logicAdd"
+                            onChange={this.handleChangeTextValue}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <ModalInput
+                            type="input"
+                            label="Physical Add"
+                            name="physicalAdd"
+                            onChange={this.handleChangeTextValue}
+                        />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={12}>
+                        <ModalInput
+                            type="datepicker"
+                            label="Created Date"
+                            onChange={this.handleChangeCreateDate}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <ModalInput
+                            type="datepicker"
+                            label="Created Date"
+                            onChange={this.handleChangeExposeDate}
+                        />
+                    </Col>
+                </Row>
+            </Row>
+        )
+    }
+
+    // render purchasing field of modal
+    renderPurchasingField = (type) => {
+        return (
+            //Purchasing
+            <Row className="modal-add__section">
+                <p className="title">Purchasing</p>
+                <div className="seperate"></div>
+                {
+                    type === 'physical' &&
+                    <Row className="modal-add__section__item">
+                        <Col span={12}>
+                            <ModalInput
+                                type="select"
+                                label="Manufacturer"
+                                required
+                                name="manufacturer"
+                                placeholder="Select a type"
+                                onChange={this.handleChooseSelect}
+                                optionSelectValue={typeValue}
+                            />
+                        </Col>
+                        <Col span={12}>
+                            <ModalInput
+                                type="select"
+                                label="Manufacturer"
+                                required
+                                name="manufacturer"
+                                placeholder="Select a type"
+                                onChange={this.handleChooseSelect}
+                                optionSelectValue={typeValue}
+                            />
+                        </Col>
+                    </Row>
+                }
+                <Row className="modal-add__section__item">
+                    <Col span={12}>
+                        <ModalInput
+                            type="datepicker"
+                            label="Created Date"
+                            onChange={this.handleChangeCreateDate}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <ModalInput
+                            type="datepicker"
+                            label="Created Date"
+                            onChange={this.handleChangeExposeDate}
+                        />
+                    </Col>
+                </Row>
+                {
+                    type === 'physical' &&
+                    <Row className="modal-add__section__item" style={{ height: '51px' }}>
+                        <Col span={12}>
+                            <ModalInput
+                                type="input"
+                                label="Warrantly (Month)"
+                                name="warrantly"
+                                onChange={this.handleChangeTextValue}
+                            />
+                        </Col>
+                    </Row>
+                }
+                {
+                    type === 'softwareService' &&
+                    <Row className="modal-add__section__item">
+                        <Col span={12}>
+                            <ModalInput
+                                type="input"
+                                label="Logic Add"
+                                name="logicAdd"
+                                onChange={this.handleChangeTextValue}
+                            />
+
+                        </Col>
+                        <Col span={12}>
+                            <ModalInput
+                                type="input"
+                                label="Physical Add"
+                                name="physicalAdd"
+                                onChange={this.handleChangeTextValue}
+                            />
+                        </Col>
+                    </Row>
+                }
+            </Row>
+        )
+    }
+
+    // render modal 
     handleRenderModalField = (type) => {
         if (!type || type === "" || type.length === 0) return;
         return (
             <>
                 {/* General */}
-                <Row className="modal-add__section">
-                    <p className="title">General</p>
-                    <div className="seperate"></div>
-                    <Row className="modal-add__section__item">
-                        <Col span={12}>
-                            <div className="input">
-                                <Col span={7}><p className="input__name">Name<span className='require-text'>*</span></p></Col>
-                                <Col span={17}>
-                                    <TextArea
-                                        name="name"
-                                        rows={4}
-                                        onChange={this.handleChangeTextValue}
-                                    />
-                                </Col>
-                            </div>
-                        </Col>
-                        <Col span={12}>
-                            {
-                                type === "physical" &&
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Unit</p></Col>
-                                    <Col span={17}>
-                                        <Input
-                                            name="unit"
-                                            onChange={this.handleChangeTextValue}
-                                        />
-                                    </Col>
-                                </div>
-                            }
-                            <div className="input">
-
-                                <Col span={7}><p className="input__name">Note</p></Col>
-                                <Col span={17}>
-
-                                    <TextArea
-                                        name="note"
-                                        rows={4}
-                                        onChange={this.handleChangeTextValue}
-                                    />
-                                </Col>
-                            </div>
-                        </Col>
-                    </Row>
-                    {
-                        type === 'physical' &&
-                        <>
-                            <Row className="modal-add__section__item" style={{ height: '51px' }}>
-                                <Col span={12}>
-                                    <div className="input">
-                                        <Col span={7}><p className="input__name">Associate asset</p></Col>
-                                        <Col span={17}>
-                                            <Input
-                                                name="associate"
-                                                onChange={this.handleChangeTextValue}
-                                                disabled
-                                            />
-                                        </Col>
-                                    </div>
-                                </Col>
-                            </Row>
-                            <Row className="modal-add__section__item">
-                                <Col span={12}>
-                                    <div className="input">
-                                        <Col span={7}><p className="input__name">Site<span className='require-text'>*</span></p></Col>
-                                        <Col span={17}>
-                                            <Select className="input__select" placeholder="Select a site" onChange={this.handleChooseSite}>
-                                                <Option value={`1`} >Hà Nội</Option>
-                                            </Select>
-                                        </Col>
-                                    </div>
-                                </Col>
-                                <Col span={12}>
-                                    <div className="input">
-                                        <Col span={7}><p className="input__name">PIC</p></Col>
-                                        <Col span={17}>
-                                            <Input
-                                                name="pic"
-                                                onChange={this.handleChangeTextValue}
-                                                disabled
-                                            />
-                                        </Col>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </>
-                    }
-                </Row>
+                {this.renderGeneralField(type)}
                 {/* Creation */}
-                {
-                    type === 'infomation' &&
-                    <Row className="modal-add__section">
-                        <p className="title">Creation</p>
-                        <div className="seperate"></div>
-                        <Row className="modal-add__section__item">
-                            <Col span={12}>
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Logic Add</p></Col>
-                                    <Col span={17}>
-                                        <Input
-                                            name="logicAdd"
-                                            onChange={this.handleChangeTextValue}
-                                        />
-                                    </Col>
-                                </div>
-                            </Col>
-                            <Col span={12}>
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Physical Add</p></Col>
-                                    <Col span={17}>
-                                        <Input
-                                            name="physicalAdd"
-                                            onChange={this.handleChangeTextValue}
-                                        />
-                                    </Col>
-                                </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <Col span={12}>
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Created Date</p></Col>
-                                    <Col span={17}>
-                                        <DatePicker onChange={this.handleChangeCreateDate} />
-                                    </Col>
-                                </div>
-                            </Col>
-                            <Col span={12}>
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Expose Date</p></Col>
-                                    <Col span={17}>
-                                        <DatePicker onChange={this.handleChangeExposeDate} />
-                                    </Col>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Row>
-                }
+                {type === 'infomation' && this.renderCreationField(type)}
                 {/* Purchasing */}
-                {
-                    type !== 'infomation' &&
-                    <Row className="modal-add__section">
-                        <p className="title">Purchasing</p>
-                        <div className="seperate"></div>
-                        {
-                            type === 'physical' &&
-                            <Row className="modal-add__section__item">
-                                <Col span={12}>
-                                    <div className="input">
-                                        <Col span={7}><p className="input__name">Manufacturer<span className='require-text'>*</span></p></Col>
-                                        <Col span={17}>
-                                            <Select className="input__select" placeholder="Select a type" onChange={this.handleChooseSelect}>
-                                                {
-                                                    typeValue.map(item => <Option value={item.value} key={item.value}>{item.name}</Option>)
-                                                }
-                                            </Select>
-                                        </Col>
-                                    </div>
-                                </Col>
-                                <Col span={12}>
-                                    <div className="input">
-                                        <Col span={7}><p className="input__name">Supplier<span className='require-text'>*</span></p></Col>
-                                        <Col span={17}>
-                                            <Select className="input__select" placeholder="Select a type" onChange={this.handleChooseSelect}>
-                                                {
-                                                    typeValue.map(item => <Option value={item.value} key={item.value}>{item.name}</Option>)
-                                                }
-                                            </Select>
-                                        </Col>
-                                    </div>
-                                </Col>
-                            </Row>
-                        }
-                        <Row className="modal-add__section__item">
-                            <Col span={12}>
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Purchase Date</p></Col>
-                                    <Col span={17}>
-                                        <DatePicker onChange={this.handleChangeCreateDate} />
-                                    </Col>
-                                </div>
-                            </Col>
-                            <Col span={12}>
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Price (VND)</p></Col>
-                                    <Col span={17}>
-                                        <Input
-                                            name="price"
-                                            onChange={this.handleChangeTextValue}
-                                        />
-                                    </Col>
-                                </div>
-                            </Col>
-                        </Row>
-                        {
-                            type === 'physical' &&
-                            <Row className="modal-add__section__item" style={{ height: '51px' }}>
-                                <Col span={12}>
-                                    <div className="input">
-                                        <Col span={7}><p className="input__name">Warrantly (Month)</p></Col>
-                                        <Col span={17}>
-                                            <Input
-                                                name="unit"
-                                                onChange={this.handleChangeTextValue}
-                                            />
-                                        </Col>
-                                    </div>
-                                </Col>
-                            </Row>
-                        }
-                        {
-                            type === 'softwareService' &&
-                            <Row className="modal-add__section__item">
-                                <Col span={12}>
-                                    <div className="input">
-                                        <Col span={7}><p className="input__name">Logic Add</p></Col>
-                                        <Col span={17}>
-                                            <Input
-                                                name="logicAdd"
-                                                onChange={this.handleChangeTextValue}
-                                            />
-                                        </Col>
-                                    </div>
-                                </Col>
-                                <Col span={12}>
-                                    <div className="input">
-                                        <Col span={7}><p className="input__name">Physical Add</p></Col>
-                                        <Col span={17}>
-                                            <Input
-                                                name="physicalAdd"
-                                                onChange={this.handleChangeTextValue}
-                                            />
-                                        </Col>
-                                    </div>
-                                </Col>
-                            </Row>
-                        }
-                    </Row>
-                }
+                {type !== 'infomation' && this.renderPurchasingField(type)}
             </>
         )
     }
 
+    // handle create new asset
     handleSubmitForm = (e) => {
         e.preventDefault();
         const { type, group, modalValue } = this.state;
@@ -424,28 +409,26 @@ class Asset extends React.Component {
                     >
                         <Row>
                             <Col span={12}>
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Type<span className='require-text'>*</span></p></Col>
-                                    <Col span={17}>
-                                        <Select className="input__select" placeholder="Select a type" onChange={this.handleChooseSelect}>
-                                            {
-                                                typeValue.map(item => <Option value={item.value} key={item.value}>{item.name}</Option>)
-                                            }
-                                        </Select>
-                                    </Col>
-                                </div>
+                                <ModalInput
+                                    type="select"
+                                    label="Type"
+                                    required
+                                    optionSelectValue={typeValue}
+                                    name="type"
+                                    placeholder="Select a type"
+                                    onChange={this.handleChooseSelect}
+                                />
                             </Col>
                             <Col span={12}>
-                                <div className="input">
-                                    <Col span={7}><p className="input__name">Group<span className='require-text'>*</span></p></Col>
-                                    <Col span={17}>
-                                        <Select className="input__select" placeholder="Select a type" >
-                                            {
-                                                typeValue.map(item => <Option value={item.value} key={item.value}>{item.name}</Option>)
-                                            }
-                                        </Select>
-                                    </Col>
-                                </div>
+                                <ModalInput
+                                    type="select"
+                                    label="Group"
+                                    required
+                                    optionSelectValue={typeValue}
+                                    name="group"
+                                    placeholder="Select a type"
+                                    onChange={this.handleChooseSelect}
+                                />
                             </Col>
                         </Row>
                         {
