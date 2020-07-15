@@ -217,11 +217,11 @@ class UserList extends React.Component {
         });
     }
 
-    isShowEditForm = () => {
-        if (this.state.statusEdit === true) {
-            this.showModal()
-        }
-    }
+    // isShowEditForm = () => {
+    //     if (this.state.statusEdit === true) {
+    //         this.showModal()
+    //     }
+    // }
     handleSearch = () => {
         console.log("searching..")
         axios.get(`https://gams-temp.herokuapp.com/api/users/?search=${this.state.search}`)
@@ -421,7 +421,7 @@ class UserList extends React.Component {
                     Add a row
                 </Button>
                 <Modal
-                    title="Basic Modal"
+                    title="Add a new user"
                     visible={this.state.visible}
                     onOk={this.handleAdd}
                     onCancel={this.handleCancel}
