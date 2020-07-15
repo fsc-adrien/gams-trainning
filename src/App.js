@@ -1,55 +1,31 @@
 import React from 'react';
 import './App.css';
 import {
-    BrowserRouter as Router,
     Switch,
     Route,
-    Link
 } from "react-router-dom";
-import UserList from './screens/User/List'
 import 'antd/dist/antd.css';
-import Asset from "./screens/User/Asset";
-import * as HttpStatus from './components/common/HttpStatus'
+import UserList from './screens/User/List';
+import Asset from "./screens/Asset";
+import LoginScreens from './screens/Login';
+import LayoutWrapper from './components/Layout';
+import PrivateRoute from './components/PrivateRoute';
+import { createBrowserHistory } from 'history';
 
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src='https://www.cmcglobal.com.vn/wp-content/uploads/2019/12/4095-4096-max-3.png' className="App-logo" alt="logo" />
-//         <p>
-//           Global Asset Management System
-//         </p>
-//       </header>
-//     </div>
-//   );
-// }
+const history = createBrowserHistory();
 
 export default function App() {
     return (
-        <Router>
-            <div>
-                <nav>
-                    <ul>
-                        <li>
-                            <Link to="/assets">Assets</Link>
-                        </li>
-                        <li>
-                            <Link to="/users">Users</Link>
-                        </li>
-                    </ul>
-                </nav>
-
-                <Switch>
-                    <Route path="/assets">
-                        <Asset />
-                    </Route>
-                    <Route path="/">
-                            <UserList />
-                    </Route>
-                </Switch>
-            </div>
-        </Router>
+        <div>
+            <Switch>
+                <Route exact path="/">
+                    <LoginScreens />
+                </Route>
+                {/* <PrivateRoute path="/assets" component={() => <LayoutWrapper component={Asset} getProps={{ history: history }}/>} /> */}
+                <Route path="/assets" render={() => <LayoutWrapper component={Asset} getProps={{ history: history }} />} />
+                <Route path="/users" render={() => <LayoutWrapper component={UserList} getProps={{ history: history }} />} />
+            </Switch>
+        </div>
     );
 }
 

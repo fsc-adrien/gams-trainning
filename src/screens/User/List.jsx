@@ -336,7 +336,11 @@ class UserList extends React.Component {
         })
     }
 
-    handleOk = () => {
+    handleSave = row => {
+        const newData = [...this.state.users];
+        const index = newData.findIndex(item => row.key === item.key);
+        const item = newData[index];
+        newData.splice(index, 1, {...item, ...row});
         this.setState({
             ModalText: 'The modal will be closed after two seconds',
             confirmLoading: true,
