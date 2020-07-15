@@ -11,16 +11,9 @@ export default function LoginScreens() {
     const [loading, setLoading] = useState(false);
     const history = useHistory();
     const timer = null;
-    const [users, setUsers] = useState([]);
 
     // componentDidMount
     useEffect(() => {
-        setLoading(true)
-        service.get("https://gams-temp.herokuapp.com/api/users/")
-            .then(res => {
-                setUsers(res.users);
-                setLoading(false);
-            })
         return () => {
             clearTimeout(timer);
         }
@@ -46,7 +39,6 @@ export default function LoginScreens() {
                     className="logo"
                 />
                 <p className="title">Global Asset Management System</p>
-                <p>{users.length}</p>
                 <Form
                     onFinish={handleSignIn}
                 >
