@@ -1,5 +1,5 @@
 import React from "react";
-import { Tabs, Button, Modal, Row, Select, Col } from 'antd';
+import { Tabs, Button, Modal, Row, Col } from 'antd';
 import TabList from "./TabList";
 import TabDetail from "./TabDetail";
 import TabHistory from "./TabHistory";
@@ -157,7 +157,6 @@ class Asset extends React.Component {
                                     type="input"
                                     label="Associate asset"
                                     name="associate"
-                                    onChange={this.handleChangeTextValue}
                                     disabled
                                 />
                             </Col>
@@ -179,7 +178,6 @@ class Asset extends React.Component {
                                     type="input"
                                     label="PIC"
                                     name="pic"
-                                    onChange={this.handleChangeTextValue}
                                     disabled
                                 />
                             </Col>
@@ -226,7 +224,7 @@ class Asset extends React.Component {
                     <Col span={12}>
                         <ModalInput
                             type="datepicker"
-                            label="Created Date"
+                            label="Expose Date"
                             onChange={this.handleChangeExposeDate}
                         />
                     </Col>
@@ -280,7 +278,7 @@ class Asset extends React.Component {
                     <Col span={12}>
                         <ModalInput
                             type="datepicker"
-                            label="Created Date"
+                            label="Expose Date"
                             onChange={this.handleChangeExposeDate}
                         />
                     </Col>
