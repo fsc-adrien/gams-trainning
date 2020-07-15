@@ -205,9 +205,9 @@ class UserList extends React.Component {
     handleEdit = (record) => {
         this.setState({ userEditObject: record });
         // ????
-        this.isShowEditForm();
+        // this.isShowEditForm();
         // ????
-
+        this.showModal('edit')
         // this.handleUpdate(record);
     }
 
@@ -294,6 +294,7 @@ class UserList extends React.Component {
                 this.setState({
                     users: newArray, //update new array for users list
                     visible: false, // close modal after click "OK" button
+                    visible2: false,
                     count: count + 1,
                     inputValue: {
                         firstName: '',
@@ -315,6 +316,8 @@ class UserList extends React.Component {
         const config = { headers: {'Content-Type': 'application/json' }};
         axios.put(`https://gams-temp.herokuapp.com/api/users/`, JSON.stringify(info), config)
             .then(res => {
+                const newArray = [...this.state.users];
+                newArray.unshift(res.data.user)
                 if (res.status === 200) {
                     console.log('Update Success');
                 }
@@ -347,18 +350,26 @@ class UserList extends React.Component {
     };
 
     // show modal to fill in info to add user to list
-    showModal = () => {
-        this.setState({
-            visible: true,
-
-        });
+    showModal = (type) => {
+        if(type === 'add') {
+            this.setState({
+                visible: true,
+            });
+        } else {
+            this.setState({
+                visible2: true,
+            });
+        }
     };
+
+
 
     //set visible or not after click OK in modal
     handleCancel = () => {
         console.log('Clicked cancel button');
         this.setState({
             visible: false,
+            visible2: false,
         });
     };
 
@@ -399,7 +410,7 @@ class UserList extends React.Component {
                     />
                 </div>
                 <Button
-                    onClick={this.showModal}
+                    onClick={() => this.showModal('add')}
                     type="primary"
                     style={{
                         marginTop: '20px',
@@ -409,7 +420,7 @@ class UserList extends React.Component {
                 >
                     Add a row
                 </Button>
-                {/* <Modal
+                <Modal
                     title="Basic Modal"
                     visible={this.state.visible}
                     onOk={this.handleAdd}
@@ -427,10 +438,10 @@ class UserList extends React.Component {
                     Role: <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role", e)}/>
                     DU: <Input value={this.state.inputValue.department}
                                onChange={(e) => this.onChange("department", e)}/>
-                </Modal> */}
+                </Modal>
                 <Modal
                     title="Edit User"
-                    visible={this.state.visible}
+                    visible={this.state.visible2}
                     onOk={() => this.handleUpdate(this.state.userEditObject)}
                     // onOk={this.handleOk}
                     confirmLoading={confirmLoading}
