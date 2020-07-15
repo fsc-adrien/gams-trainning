@@ -3,6 +3,7 @@ import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip } from 'antd';
 import axios from "axios";
 import SearchComponent from "./Search";
+import axiosService from '../../utils/axiosService';
 
 const EditableContext = React.createContext();
 
@@ -177,12 +178,17 @@ class UserList extends React.Component {
     }
 
     componentDidMount() {
-        axios.get(`https://gams-temp.herokuapp.com/api/users/`)
+        // axios.get(`https://gams-temp.herokuapp.com/api/users/`)
+        //     .then(res => {
+        //         const users = res.data.users;
+        //         this.setState({ users });
+        //     })
+        //     .catch(error => console.log(error))
+        axiosService.get(`https://gams-temp.herokuapp.com/api/users/`)
             .then(res => {
-                const users = res.data.users;
-                this.setState({ users });
+                const { users } = res;
+                this.setState({ users })
             })
-            .catch(error => console.log(error))
     }
 
     handleSearch = () => {
