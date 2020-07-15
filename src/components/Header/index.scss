@@ -1,0 +1,50 @@
+.header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 65px;
+    background-color: #007bff;
+
+    &__logo {
+        height: 50px;
+        padding-left: 20px;
+    }
+
+    &__list {
+        margin: 0;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        list-style: none;
+
+    }
+
+    &__logout {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+
+        .btnLogout {
+            padding: 0 24px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+        }
+    }
+
+    &__item {
+        font-size: 16px;
+        padding: 10px 24px;
+        margin-right: 24px;
+        color: white;
+
+        &-active,
+        &:hover {
+            color: white;
+            font-weight: 700;
+            border-bottom: 5px solid orange;
+        }
+    }
+
+}
