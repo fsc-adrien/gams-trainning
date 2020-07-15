@@ -1,0 +1,44 @@
+.login {
+    padding: 100px 20px;
+
+    .loginWrapper {
+        width: 30vw;
+        border: 1px solid #f0f0f0;
+        border-radius: 5px;
+        box-shadow: 0px 3px #e9e6e6;
+        margin: auto;
+        padding: 30px 24px;
+
+        .logo {
+            width: 61px;
+            display: block;
+            margin: 0 auto 5px;
+        }
+
+        .title {
+            font-size: 15px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .form__input {
+            margin-bottom: 20px;
+
+            .input {
+                font-size: 16px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                margin-bottom: 0;
+
+                &__prefix {
+                    margin-right: 15px;
+                }
+            }
+        }
+
+        .signInBtn {
+            width: 100%;
+        }
+    }
+}
