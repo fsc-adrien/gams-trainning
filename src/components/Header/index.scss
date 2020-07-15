@@ -20,6 +20,19 @@
 
     }
 
+    &__logout {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+
+        .btnLogout {
+            padding: 0 24px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+        }
+    }
+
     &__item {
         font-size: 16px;
         padding: 10px 24px;

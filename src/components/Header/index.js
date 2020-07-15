@@ -1,10 +1,18 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Col, Row } from 'antd';
+import { NavLink, useHistory } from 'react-router-dom';
+import { Col, Row, Button } from 'antd';
+import Cookies from 'js-cookie';
 import Logo from '../../asset/images/logo.png';
 import './index.scss';
 
 export default function Header() {
+    const history = useHistory();
+
+    const handleLogout = () => {
+        Cookies.remove("token");
+        history.push("/");
+    }
+
     return (
         <Row>
             <nav className="header">
@@ -26,6 +34,11 @@ export default function Header() {
                             <NavLink to="/users" className="header__item" activeClassName="header__item-active">Users</NavLink>
                         </li>
                     </ul>
+                </Col>
+                <Col span={11}>
+                    <div className="header__logout">
+                        <Button onClick={handleLogout} className="btnLogout">Logout</Button>
+                    </div>
                 </Col>
             </nav>
         </Row>
