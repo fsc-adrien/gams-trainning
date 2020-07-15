@@ -1,12 +1,12 @@
-import React, {useContext, useState, useEffect, useRef} from 'react';
-import {CloseOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import {Table, Input, Modal, Button, Popconfirm, Form, Tooltip} from 'antd';
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import { CloseOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip } from 'antd';
 import axios from "axios";
 import SearchComponent from "./Search";
 
 const EditableContext = React.createContext();
 
-const EditableRow = ({index, ...props}) => {
+const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
     return (
         <Form form={form} component={false}>
@@ -18,14 +18,14 @@ const EditableRow = ({index, ...props}) => {
 };
 
 const EditableCell = ({
-                          title,
-                          editable,
-                          children,
-                          dataIndex,
-                          record,
-                          handleSave,
-                          ...restProps
-                      }) => {
+    title,
+    editable,
+    children,
+    dataIndex,
+    record,
+    handleSave,
+    ...restProps
+}) => {
     const [editing, setEditing] = useState(false);
     const inputRef = useRef();
     const form = useContext(EditableContext);
@@ -46,7 +46,7 @@ const EditableCell = ({
         try {
             const values = await form.validateFields();
             toggleEdit();
-            handleSave({...record, ...values});
+            handleSave({ ...record, ...values });
         } catch (errInfo) {
             console.log('Save failed:', errInfo);
         }
@@ -68,19 +68,19 @@ const EditableCell = ({
                     },
                 ]}
             >
-                <Input ref={inputRef} onPressEnter={save} onBlur={save}/>
+                <Input ref={inputRef} onPressEnter={save} onBlur={save} />
             </Form.Item>
         ) : (
-            <div
-                className="editable-cell-value-wrap"
-                style={{
-                    paddingRight: 24,
-                }}
-                onClick={toggleEdit}
-            >
-                {children}
-            </div>
-        );
+                <div
+                    className="editable-cell-value-wrap"
+                    style={{
+                        paddingRight: 24,
+                    }}
+                    onClick={toggleEdit}
+                >
+                    {children}
+                </div>
+            );
     }
 
     return <td {...restProps}>{childNode}</td>;
@@ -97,21 +97,21 @@ class UserList extends React.Component {
                 editable: true,
                 sorter: (a, b) => a.firstName < b.firstName,
                 sortDirections: ['descend'],
-                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
                 title: 'Last Name',
                 dataIndex: 'surName',
                 width: 70,
                 editable: true,
-                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
                 title: 'Email',
                 dataIndex: 'email',
                 width: 70,
                 editable: true,
-                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
                 title: 'BirthYear',
@@ -120,20 +120,20 @@ class UserList extends React.Component {
                 editable: true,
                 sorter: (a, b) => a.birthYear < b.birthYear,
                 sortDirections: ['descend'],
-                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
                 title: 'City',
                 dataIndex: 'birthPlace',
                 width: 70,
                 editable: true,
-                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
                 title: 'Role',
                 dataIndex: 'role',
                 width: 30,
-                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
                 title: 'DU',
@@ -141,7 +141,7 @@ class UserList extends React.Component {
                 width: 50,
                 sorter: (a, b) => a.department < b.department,
                 sortDirections: ['descend'],
-                render: text => <span style={{fontWeight: 600, cursor: 'pointer'}}>{text}</span>,
+                render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
                 title: 'Action',
@@ -154,9 +154,9 @@ class UserList extends React.Component {
                         <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
                             <DeleteOutlined />
                         </Popconfirm>
-                        
+
                     ) : null,
-                    
+
             },
             {
                 title: 'Action',
@@ -165,10 +165,10 @@ class UserList extends React.Component {
                 key: 'action',
                 fixed: 'left',
                 render: (text, record) =>
-                    this.state.users.length >= 1 ? (  
-                            <EditOutlined onClick={ () => this.handleEdit(record)} /> 
+                    this.state.users.length >= 1 ? (
+                        <EditOutlined onClick={() => this.handleEdit(record)} />
                     ) : null,
-                    
+
             },
         ];
         this.state = {
@@ -185,10 +185,10 @@ class UserList extends React.Component {
                 email: '',
             },
             search: '',
-            statusEdit : true,
-            userEditObject:{},
-            
-           
+            statusEdit: true,
+            userEditObject: {},
+
+
         };
         // this.onChange = this.onChange.bind(this);
     }
@@ -197,29 +197,29 @@ class UserList extends React.Component {
         axios.get(`https://gams-temp.herokuapp.com/api/users/`)
             .then(res => {
                 const users = res.data.users;
-                this.setState({users});
+                this.setState({ users });
             })
             .catch(error => console.log(error))
     }
 
     // displayModal = () => {this.showModal}
     handleEdit = (record) => {
-        this.setState({userEditObject : record});
+        this.setState({ userEditObject: record });
         // ????
-        this.isShowEditForm(); 
+        this.isShowEditForm();
         // ????
 
         // this.handleUpdate(record);
     }
 
-    ChangeStatus = () =>{
+    ChangeStatus = () => {
         this.setState({
-            statusEdit : !this.setState.statusEdit
+            statusEdit: !this.setState.statusEdit
         });
-            }
+    }
 
     isShowEditForm = () => {
-        if (this.state.statusEdit === true){
+        if (this.state.statusEdit === true) {
             this.showModal()
         }
     }
@@ -239,8 +239,8 @@ class UserList extends React.Component {
     //handle close button in search bar
     handleClose = () => {
         this.setState({
-                search: '', //reset state of search
-            }
+            search: '', //reset state of search
+        }
         )
     }
 
@@ -279,7 +279,7 @@ class UserList extends React.Component {
 
     //handle function add a row of user to list
     handleAdd = () => {
-        const {count, users} = this.state;
+        const { count, users } = this.state;
         const newData = {
             key: count,
             firstName: this.state.inputValue.firstName,
@@ -292,40 +292,40 @@ class UserList extends React.Component {
         };
         axios.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
             .then(res => {
-                    const newArray = [...this.state.users];
-                    newArray.unshift(res.data.user) //unshift to display item has been created upto the top
-                    this.setState({
-                        users: newArray, //update new array for users list
-                        visible: false, // close modal after click "OK" button
-                        count: count + 1,
-                        inputValue: {
-                            firstName: '',
-                            surName: '',
-                            birthYear: '',
-                            birthPlace: '',
-                            department: '',
-                            role: '',
-                            email: '',
-                        },
-                    })
-                }
+                const newArray = [...this.state.users];
+                newArray.unshift(res.data.user) //unshift to display item has been created upto the top
+                this.setState({
+                    users: newArray, //update new array for users list
+                    visible: false, // close modal after click "OK" button
+                    count: count + 1,
+                    inputValue: {
+                        firstName: '',
+                        surName: '',
+                        birthYear: '',
+                        birthPlace: '',
+                        department: '',
+                        role: '',
+                        email: '',
+                    },
+                })
+            }
             )
     };
 
-   
+
     handleUpdate = (info) => {
 
         console.log(typeof info, 'aaaaaaaa');
 
         axios.put(`https://gams-temp.herokuapp.com/api/users/`, JSON.stringify(info))
-        .then(res => {
-            if (res.status === 200) {
-                console.log('Update Success');
-            }
-        })
-        .catch(error => {
-            console.log('Update Failed');
-        });
+            .then(res => {
+                if (res.status === 200) {
+                    console.log('Update Success');
+                }
+            })
+            .catch(error => {
+                console.log('Update Failed');
+            });
     };
     //get value after input in modal
     // onChange(field, e) {
@@ -339,22 +339,22 @@ class UserList extends React.Component {
 
     handleOk = () => {
         this.setState({
-          ModalText: 'The modal will be closed after two seconds',
-          confirmLoading: true,
+            ModalText: 'The modal will be closed after two seconds',
+            confirmLoading: true,
         });
         setTimeout(() => {
-          this.setState({
-            visible: false,
-            confirmLoading: false,
-          });
+            this.setState({
+                visible: false,
+                confirmLoading: false,
+            });
         }, 2000);
-      };
+    };
 
     // show modal to fill in info to add user to list
     showModal = () => {
         this.setState({
             visible: true,
-            
+
         });
     };
 
@@ -362,12 +362,12 @@ class UserList extends React.Component {
     handleCancel = () => {
         console.log('Clicked cancel button');
         this.setState({
-          visible: false,
+            visible: false,
         });
-      };
+    };
 
     render() {
-        const {users} = this.state;
+        const { users } = this.state;
         const components = {
             body: {
                 row: EditableRow,
@@ -435,27 +435,27 @@ class UserList extends React.Component {
                 <Modal
                     title="Edit User"
                     visible={this.state.visible}
-                    // onOk={this.handleUpdate(this.state.userEditObject)}
-                    onOk={this.handleOk}
+                    onOk={() => this.handleUpdate(this.state.userEditObject)}
+                    // onOk={this.handleOk}
                     confirmLoading={confirmLoading}
                     onCancel={this.handleCancel}
-                  >
-                  
-                    FirstName: <Input  value={this.state.userEditObject.firstName} 
-                                  name="firstName"    onChange={(event) =>this.isChange(event)}/>
-                    SurName: <Input value={this.state.userEditObject.surName} 
-                                  name="surName"    onChange={(event) => this.isChange(event)}/>
-                    Email: <Input value={this.state.userEditObject.email} name="email"   onChange={(event) => this.isChange(event)}/>
-                    BirthYear: <Input value={this.state.userEditObject.birthYear} 
-                                    name="birthYear"   onChange={(event) => this.isChange(event)}/>
-                    City: <Input value={this.state.userEditObject.birthPlace} 
-                                name="birthPlace"  onChange={(event) => this.isChange(event)}/>
-                    Role: <Input value={this.state.userEditObject.role} name="role"  onChange={(event) => this.isChange(event)}/>
-                    DU: <Input name="department" value={this.state.userEditObject.department}  
-                                onChange={(event) => this.isChange(event)}/>
-                                
+                >
+
+                    FirstName: <Input value={this.state.userEditObject.firstName}
+                        name="firstName" onChange={(event) => this.isChange(event)} />
+                    SurName: <Input value={this.state.userEditObject.surName}
+                        name="surName" onChange={(event) => this.isChange(event)} />
+                    Email: <Input value={this.state.userEditObject.email} name="email" onChange={(event) => this.isChange(event)} />
+                    BirthYear: <Input value={this.state.userEditObject.birthYear}
+                        name="birthYear" onChange={(event) => this.isChange(event)} />
+                    City: <Input value={this.state.userEditObject.birthPlace}
+                        name="birthPlace" onChange={(event) => this.isChange(event)} />
+                    Role: <Input value={this.state.userEditObject.role} name="role" onChange={(event) => this.isChange(event)} />
+                    DU: <Input name="department" value={this.state.userEditObject.department}
+                        onChange={(event) => this.isChange(event)} />
+
                 </Modal>
-                
+
                 <Table
                     components={components}
                     rowClassName={() => 'editable-row'}
