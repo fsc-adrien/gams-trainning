@@ -15,17 +15,12 @@ export default function LoginScreens() {
 
     // handle login 
     const handleSignIn = (values) => {
-        console.log(values)
         setLoading(true);
         Axios.post("https://gams-temp.herokuapp.com/api/auth/signin", values)
             .then(res => {
-                console.log(res)
                 if (res.data.accessToken) {
                     Cookies.set("token", res.data.accessToken, { expires: 1 });
                     history.push("/users");
-                } else {
-                    console.log(res)
-                    setError(res.data.error);
                 }
             })
             .catch((err) => setError("Request failed with status code 401"))
