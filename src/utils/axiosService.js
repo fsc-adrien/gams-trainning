@@ -5,7 +5,8 @@ class AxiosService {
     constructor() {
         const instance = axios.create({
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
             }
         });
         instance.interceptors.response.use(this.handleSuccess, this.handleError);

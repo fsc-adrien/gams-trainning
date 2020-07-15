@@ -13,15 +13,18 @@ export default function LoginScreens() {
     const timer = null;
     const [users, setUsers] = useState([]);
 
+    // componentDidMount
     useEffect(() => {
+        setLoading(true)
+        service.get("https://gams-temp.herokuapp.com/api/users/")
+            .then(res => {
+                setUsers(res.users);
+                setLoading(false);
+            })
         return () => {
             clearTimeout(timer);
         }
     }, [])
-
-    useEffect(() => {
-        service.get("https://gams-temp.herokuapp.com/api/users/").then(res => setUsers(res.users));
-    }, [users])
 
     // handle login 
     const handleSignIn = (values) => {
@@ -32,6 +35,7 @@ export default function LoginScreens() {
             setLoading(false);
         }, 4000);
     }
+
     return (
         <div className="login">
             {loading && <Loading />}
