@@ -1,6 +1,7 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
-const token = "";
+const token = Cookies.get("token");
 class AxiosService {
     constructor() {
         const instance = axios.create({

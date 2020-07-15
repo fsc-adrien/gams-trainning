@@ -5,28 +5,33 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
 import Logo from '../../asset/images/logo_cmc.png';
 import Loading from '../../components/Loading';
-import service from '../../utils/axiosService';
+import Axios from 'axios';
+import Cookies from 'js-cookie';
 
 export default function LoginScreens() {
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const history = useHistory();
-    const timer = null;
-
-    // componentDidMount
-    useEffect(() => {
-        return () => {
-            clearTimeout(timer);
-        }
-    }, [])
 
     // handle login 
     const handleSignIn = (values) => {
         console.log(values)
-        // fake loading
         setLoading(true);
-        timer = setTimeout(() => {
-            setLoading(false);
-        }, 4000);
+        Axios.post("https://gams-temp.herokuapp.com/api/auth/signin", values)
+            .then(res => {
+                console.log(res)
+                if (res.data.accessToken) {
+                    Cookies.set("token", res.data.accessToken, { expires: 1 });
+                    history.push("/users");
+                } else {
+                    console.log(res)
+                    setError(res.data.error);
+                }
+            })
+            .catch((err) => setError("Request failed with status code 401"))
+            .finally(() => {
+                setLoading(false);
+            })
     }
 
     return (
@@ -39,17 +44,18 @@ export default function LoginScreens() {
                     className="logo"
                 />
                 <p className="title">Global Asset Management System</p>
+                <p className="error">{error}</p>
                 <Form
                     onFinish={handleSignIn}
                 >
                     <Form.Item
                         className="form__input"
-                        name="username"
-                        rules={[{ required: true, message: 'Please input your username!' }]}
+                        name="email"
+                        rules={[{ required: true, message: 'Please input your email!' }]}
                     >
                         <Input
                             className="input"
-                            name="username"
+                            name="email"
                             prefix={<UserOutlined className="input__prefix" />}
                         />
                     </Form.Item>
