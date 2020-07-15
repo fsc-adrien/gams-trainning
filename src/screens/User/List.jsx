@@ -190,7 +190,7 @@ class UserList extends React.Component {
 
 
         };
-        // this.onChange = this.onChange.bind(this);
+        this.onChange = this.onChange.bind(this);
     }
 
     componentDidMount() {
@@ -202,7 +202,6 @@ class UserList extends React.Component {
             .catch(error => console.log(error))
     }
 
-    // displayModal = () => {this.showModal}
     handleEdit = (record) => {
         this.setState({ userEditObject: record });
         // ????
@@ -267,8 +266,6 @@ class UserList extends React.Component {
     isChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
-        console.log(value)
-        console.log(name)
         this.setState({
             userEditObject: {
                 ...this.state.userEditObject,
@@ -314,10 +311,9 @@ class UserList extends React.Component {
 
 
     handleUpdate = (info) => {
-
-        console.log(typeof info, 'aaaaaaaa');
-
-        axios.put(`https://gams-temp.herokuapp.com/api/users/`, JSON.stringify(info))
+        delete info.birthDay;
+        const config = { headers: {'Content-Type': 'application/json' }};
+        axios.put(`https://gams-temp.herokuapp.com/api/users/`, JSON.stringify(info), config)
             .then(res => {
                 if (res.status === 200) {
                     console.log('Update Success');
@@ -328,14 +324,14 @@ class UserList extends React.Component {
             });
     };
     //get value after input in modal
-    // onChange(field, e) {
-    //     this.setState({
-    //         inputValue: {
-    //             ...this.state.inputValue,
-    //             [field]: e.target.value,
-    //         }
-    //     })
-    // }
+    onChange(field, e) {
+        this.setState({
+            inputValue: {
+                ...this.state.inputValue,
+                [field]: e.target.value,
+            }
+        })
+    }
 
     handleOk = () => {
         this.setState({
