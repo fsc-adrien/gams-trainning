@@ -10,6 +10,9 @@ import Asset from "./screens/Asset";
 import LoginScreens from './screens/Login';
 import LayoutWrapper from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
+import { createBrowserHistory } from 'history';
+
+const history = createBrowserHistory();
 
 export default function App() {
     return (
@@ -18,9 +21,9 @@ export default function App() {
                 <Route exact path="/">
                     <LoginScreens />
                 </Route>
-                {/* <PrivateRoute path="/assets" component={() => <LayoutWrapper component={Asset} />} /> */}
-                <Route path="/assets" render={() => <LayoutWrapper component={Asset} />} />
-                <Route path="/users" render={() => <LayoutWrapper component={UserList} />} />
+                {/* <PrivateRoute path="/assets" component={() => <LayoutWrapper component={Asset} getProps={{ history: history }}/>} /> */}
+                <Route path="/assets" render={() => <LayoutWrapper component={Asset} getProps={{ history: history }} />} />
+                <Route path="/users" render={() => <LayoutWrapper component={UserList} getProps={{ history: history }} />} />
             </Switch>
         </div>
     );

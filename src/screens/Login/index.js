@@ -11,12 +11,17 @@ export default function LoginScreens() {
     const [loading, setLoading] = useState(false);
     const history = useHistory();
     const timer = null;
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         return () => {
             clearTimeout(timer);
         }
     }, [])
+
+    useEffect(() => {
+        service.get("https://gams-temp.herokuapp.com/api/users/").then(res => setUsers(res.users));
+    }, [users])
 
     // handle login 
     const handleSignIn = (values) => {
@@ -27,7 +32,6 @@ export default function LoginScreens() {
             setLoading(false);
         }, 4000);
     }
-
     return (
         <div className="login">
             {loading && <Loading />}
@@ -38,6 +42,7 @@ export default function LoginScreens() {
                     className="logo"
                 />
                 <p className="title">Global Asset Management System</p>
+                <p>{users.length}</p>
                 <Form
                     onFinish={handleSignIn}
                 >

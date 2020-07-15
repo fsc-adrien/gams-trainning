@@ -3,13 +3,11 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { createBrowserHistory } from 'history';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { BrowserRouter } from 'react-router-dom';
 import reducer from './reducer';
 
-const history = createBrowserHistory();
 const store = createStore(reducer);
 
 ReactDOM.render(
