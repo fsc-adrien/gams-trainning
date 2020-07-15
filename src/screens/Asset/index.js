@@ -394,7 +394,6 @@ class Asset extends React.Component {
 
     render() {
         const { isOpenAddAsset, type } = this.state;
-        console.log(this.props.history)
         return (
             <div className="asset">
                 <Button onClick={this.handleToggleAddAsset} type="primary" className="addbtn">Add asset</Button>
