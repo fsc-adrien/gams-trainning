@@ -21,9 +21,10 @@ export default function App() {
                 <Route exact path="/">
                     <LoginScreens />
                 </Route>
-                {/* <PrivateRoute path="/assets" component={() => <LayoutWrapper component={Asset} getProps={{ history: history }}/>} /> */}
-                <Route path="/assets" render={() => <LayoutWrapper component={Asset} getProps={{ history: history }} />} />
-                <Route path="/users" render={() => <LayoutWrapper component={UserList} getProps={{ history: history }} />} />
+                <PrivateRoute path="/assets" component={() => <LayoutWrapper component={Asset} getProps={{ history: history }} />} />
+                <PrivateRoute path="/users" component={() => <LayoutWrapper component={UserList} getProps={{ history: history }} />} />
+                {/* <Route path="/assets" render={() => <LayoutWrapper component={Asset} getProps={{ history: history }} />} /> */}
+                {/* <Route path="/users" render={() => <LayoutWrapper component={UserList} getProps={{ history: history }} />} /> */}
             </Switch>
         </div>
     );
