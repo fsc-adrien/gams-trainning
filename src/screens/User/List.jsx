@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
+import { CloseOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip } from 'antd';
 import axios from "axios";
 import SearchComponent from "./Search";
@@ -153,8 +153,21 @@ class UserList extends React.Component {
                 render: (text, record) =>
                     this.state.users.length >= 1 ? (
                         <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
-                            <a>Delete</a>
+                            <DeleteOutlined />
                         </Popconfirm>
+
+                    ) : null,
+
+            },
+            {
+                title: 'Action',
+                width: 25,
+                dataIndex: 'action',
+                key: 'action',
+                fixed: 'left',
+                render: (text, record) =>
+                    this.state.users.length >= 1 ? (
+                        <EditOutlined onClick={() => this.handleEdit(record)} />
                     ) : null,
 
             },
@@ -173,17 +186,15 @@ class UserList extends React.Component {
                 email: '',
             },
             search: '',
+            statusEdit: true,
+            userEditObject: {},
+
+
         };
         this.onChange = this.onChange.bind(this);
     }
 
     componentDidMount() {
-        // axios.get(`https://gams-temp.herokuapp.com/api/users/`)
-        //     .then(res => {
-        //         const users = res.data.users;
-        //         this.setState({ users });
-        //     })
-        //     .catch(error => console.log(error))
         axiosService.get(`https://gams-temp.herokuapp.com/api/users/`)
             .then(res => {
                 const { users } = res;
@@ -191,12 +202,32 @@ class UserList extends React.Component {
             })
     }
 
+    handleEdit = (record) => {
+        this.setState({ userEditObject: record });
+        // ????
+        // this.isShowEditForm();
+        // ????
+        this.showModal('edit')
+        // this.handleUpdate(record);
+    }
+
+    ChangeStatus = () => {
+        this.setState({
+            statusEdit: !this.setState.statusEdit
+        });
+    }
+
+    isShowEditForm = () => {
+        if (this.state.statusEdit === true) {
+            this.showModal()
+        }
+    }
     handleSearch = () => {
         console.log("searching..")
-        axios.get(`https://gams-temp.herokuapp.com/api/users/?search=${this.state.search}`)
+        axiosService.get(`https://gams-temp.herokuapp.com/api/users/?search=${this.state.search}`)
             .then(res => {
                 this.setState({
-                    users: res.data.users,
+                    users: res.users,
                 });
             })
             .catch(error => {
@@ -219,10 +250,11 @@ class UserList extends React.Component {
         })
     }
 
+
     //handle delete function
     handleDelete = id => {
         const users = [...this.state.users];
-        axios.delete(`https://gams-temp.herokuapp.com/api/users/` + id)
+        axiosService.delete(`https://gams-temp.herokuapp.com/api/users/` + id)
             .then(res => {
                 this.setState({
                     users: users.filter(user => user.id !== id),
@@ -231,6 +263,17 @@ class UserList extends React.Component {
             .catch(error => console.log(error))
 
     };
+
+    isChange = (event) => {
+        const name = event.target.name;
+        const value = event.target.value;
+        this.setState({
+            userEditObject: {
+                ...this.state.userEditObject,
+                [name]: name === 'roles' ? [value] : value,
+            }
+        });
+    }
 
     //handle function add a row of user to list
     handleAdd = () => {
@@ -244,6 +287,7 @@ class UserList extends React.Component {
             department: this.state.inputValue.department,
             role: this.state.inputValue.role,
             email: this.state.inputValue.email,
+            password: this.state.inputValue.password,
         };
         axios.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
             .then(res => {
@@ -252,6 +296,7 @@ class UserList extends React.Component {
                 this.setState({
                     users: newArray, //update new array for users list
                     visible: false, // close modal after click "OK" button
+                    visible2: false,
                     count: count + 1,
                     inputValue: {
                         firstName: '',
@@ -261,12 +306,29 @@ class UserList extends React.Component {
                         department: '',
                         role: '',
                         email: '',
+                        password: '',
                     },
                 })
             }
             )
     };
 
+
+    handleUpdate = (info) => {
+        delete info.birthDay;
+        const config = { headers: { 'Content-Type': 'application/json' } };
+        axiosService.put(`https://gams-temp.herokuapp.com/api/users/`, JSON.stringify(info))
+            .then(res => {
+                const newArray = [...this.state.users];
+                newArray.unshift(res.data.user)
+                if (res.status === 200) {
+                    console.log('Update Success');
+                }
+            })
+            .catch(error => {
+                console.log('Update Failed');
+            });
+    };
     //get value after input in modal
     onChange(field, e) {
         this.setState({
@@ -277,27 +339,40 @@ class UserList extends React.Component {
         })
     }
 
-    handleSave = row => {
-        const newData = [...this.state.users];
-        const index = newData.findIndex(item => row.key === item.key);
-        const item = newData[index];
-        newData.splice(index, 1, { ...item, ...row });
+    handleOk = () => {
         this.setState({
-            users: newData,
+            ModalText: 'The modal will be closed after two seconds',
+            confirmLoading: true,
         });
+        setTimeout(() => {
+            this.setState({
+                visible: false,
+                confirmLoading: false,
+            });
+        }, 2000);
     };
 
     // show modal to fill in info to add user to list
-    showModal = () => {
-        this.setState({
-            visible: true,
-        });
+    showModal = (type) => {
+        if (type === 'add') {
+            this.setState({
+                visible: true,
+            });
+        } else {
+            this.setState({
+                visible2: true,
+            });
+        }
     };
+
+
 
     //set visible or not after click OK in modal
     handleCancel = () => {
+        console.log('Clicked cancel button');
         this.setState({
             visible: false,
+            visible2: false,
         });
     };
 
@@ -325,6 +400,7 @@ class UserList extends React.Component {
                 }),
             };
         });
+        const { visible, confirmLoading, ModalText } = this.state;
         return (
             <div>
                 <div className='ul-header'>
@@ -337,7 +413,7 @@ class UserList extends React.Component {
                     />
                 </div>
                 <Button
-                    onClick={this.showModal}
+                    onClick={() => this.showModal('add')}
                     type="primary"
                     style={{
                         marginTop: '20px',
@@ -348,7 +424,7 @@ class UserList extends React.Component {
                     Add a row
                 </Button>
                 <Modal
-                    title="Basic Modal"
+                    title="Create A User"
                     visible={this.state.visible}
                     onOk={this.handleAdd}
                     onCancel={this.handleCancel}
@@ -365,7 +441,33 @@ class UserList extends React.Component {
                     Role: <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role", e)} />
                     DU: <Input value={this.state.inputValue.department}
                         onChange={(e) => this.onChange("department", e)} />
+                    Your PassWord: <Input value={this.state.inputValue.password}
+                        onChange={(e) => this.onChange("password", e)} />
                 </Modal>
+                <Modal
+                    title="Edit User"
+                    visible={this.state.visible2}
+                    onOk={() => this.handleUpdate(this.state.userEditObject)}
+                    // onOk={this.handleOk}
+                    confirmLoading={confirmLoading}
+                    onCancel={this.handleCancel}
+                >
+
+                    FirstName: <Input value={this.state.userEditObject.firstName}
+                        name="firstName" onChange={(event) => this.isChange(event)} />
+                    SurName: <Input value={this.state.userEditObject.surName}
+                        name="surName" onChange={(event) => this.isChange(event)} />
+                    Email: <Input value={this.state.userEditObject.email} name="email" onChange={(event) => this.isChange(event)} />
+                    BirthYear: <Input value={this.state.userEditObject.birthYear}
+                        name="birthYear" onChange={(event) => this.isChange(event)} />
+                    City: <Input value={this.state.userEditObject.birthPlace}
+                        name="birthPlace" onChange={(event) => this.isChange(event)} />
+                    Role: <Input value={this.state.userEditObject.role} name="roles" onChange={(event) => this.isChange(event)} />
+                    DU: <Input name="department" value={this.state.userEditObject.department}
+                        onChange={(event) => this.isChange(event)} />
+
+                </Modal>
+
                 <Table
                     components={components}
                     rowClassName={() => 'editable-row'}
