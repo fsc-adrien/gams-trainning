@@ -1,9 +1,10 @@
 import React from "react";
-import { Table, Row, Col, Modal, Button } from "antd";
+import { Table, Row, Col, Modal, Button, Tag } from "antd";
 import { SearchOutlined, PlusOutlined, } from '@ant-design/icons';
 import ModalInput from "./ModalInput";
 import "./index.scss";
 import { SearchInput } from "./SearchInput";
+import mockData from "./mockData";
 
 const typeValue = [
     {
@@ -28,7 +29,7 @@ class TabList extends React.Component {
                 dataIndex: "code",
                 sorter: (a, b) => a.code - b.code,
                 render: (text, record) => {
-                    return <p onClick={() => this.props.onChooseAsset(text)} style={{ color: "#007bff" }}>{text}</p>
+                    return <p onClick={() => this.props.onChooseAsset(text)} style={{ color: "#007bff", marginBottom: 0, cursor: 'pointer' }}>{text}</p>
                 }
             },
             {
@@ -42,18 +43,18 @@ class TabList extends React.Component {
                 filters: [
                     {
                         text: 'Infomation Asset',
-                        value: 'infomation',
+                        value: 'Infomation Asset',
                     },
                     {
                         text: "Physical Asset",
-                        value: "physical"
+                        value: "Physical Asset"
                     },
                     {
                         text: "Software & Service Asset",
-                        value: "softwareService"
+                        value: "Software & Service Asset"
                     },
                 ],
-                onFilter: (value, record) => record.name.indexOf(value) === 0,
+                onFilter: (value, record) => record.type.indexOf(value) === 0,
             },
             {
                 title: "Asset group",
@@ -65,22 +66,22 @@ class TabList extends React.Component {
                 filters: [
                     {
                         text: 'In use',
-                        value: 'inUse',
+                        value: 'In use',
                     },
                     {
                         text: 'Destroyed',
-                        value: 'destroyed',
+                        value: 'Destroyed',
                     },
                     {
                         text: 'Pending Infomation',
-                        value: 'pending',
+                        value: 'Pending Infomation',
                     },
                     {
                         text: 'Lost',
-                        value: 'lost',
+                        value: 'Lost',
                     },
                 ],
-                onFilter: (value, record) => record.name.indexOf(value) === 0,
+                onFilter: (value, record) => record.status.indexOf(value) === 0,
                 width: 170,
             },
             {
@@ -88,7 +89,7 @@ class TabList extends React.Component {
                 dataIndex: "owner",
                 render: (text, record) => (
                     <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
-                        {text}
+                        {text && text.trim().length > 0 ? text : "N/A"}
                     </div>
                 ),
                 width: 350,
@@ -96,7 +97,12 @@ class TabList extends React.Component {
             {
                 title: "Site",
                 dataIndex: "site",
-                width: 50,
+                render: (text, record) => (
+                    <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
+                        {text && text.trim().length > 0 ? text : "N/A"}
+                    </div>
+                ),
+                width: 70,
             },
             {
                 title: "Overdue",
@@ -104,14 +110,19 @@ class TabList extends React.Component {
                 filters: [
                     {
                         text: 'Yes',
-                        value: 'yes',
+                        value: 1,
                     },
                     {
                         text: 'No',
-                        value: 'no',
+                        value: 0,
                     },
                 ],
-                onFilter: (value, record) => record.name.indexOf(value) === 0,
+                onFilter: (value, record) => record.overdue === value,
+                render: (text, record) => (
+                    <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
+                        {text === 1 ? "Yes" : "No"}
+                    </div>
+                ),
                 width: 50,
             },
             {
@@ -119,27 +130,44 @@ class TabList extends React.Component {
                 children: [
                     {
                         title: "C",
-                        dataIndex: "",
-                        width: 25,
+                        dataIndex: "c",
+                        width: 70,
+                        render: (text, record) => (
+                            <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
+                                {text ? text : "N/A"}
+                            </div>
+                        ),
                     },
                     {
                         title: "I",
-                        dataIndex: "",
-                        width: 25,
+                        dataIndex: "i",
+                        width: 70,
+                        render: (text, record) => (
+                            <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
+                                {text ? text : "N/A"}
+                            </div>
+                        ),
                     },
                     {
                         title: "A",
-                        dataIndex: "",
-                        width: 25,
+                        dataIndex: "a",
+                        width: 70,
+                        render: (text, record) => (
+                            <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
+                                {text ? text : "N/A"}
+                            </div>
+                        ),
                     },
                     {
                         title: "Sum",
-                        dataIndex: "",
-                        render: () => { },
-                        width: 25,
+                        render: (text, record) => {
+                            if (!record.c || !record.a || !record.i) return <Tag color="gray">N/A</Tag>
+                            const sum = record.c + record.a + record.i;
+                            return <Tag color={sum <= 7 ? 'yellow' : 'red'}>{sum}</Tag>
+                        },
+                        width: 70,
                     },
                 ],
-                width: 100,
             },
             {
                 title: "",
@@ -618,6 +646,7 @@ class TabList extends React.Component {
                     </div>
                 </Col>
                 <Table
+                    dataSource={mockData}
                     rowSelection={rowSelection}
                     columns={this.columns}
                 />
