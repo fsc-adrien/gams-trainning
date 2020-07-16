@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Tabs, Button } from 'antd';
+import { Tabs } from 'antd';
 import TabList from "./List";
 import TabDetail from "./Detail";
 import TabHistory from "./History";
@@ -30,7 +30,7 @@ export default function Asset() {
             handleBackList();
         }
     }
-    console.log('activeTab', activeTab)
+
     return (
         <div className="asset">
             <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={handleChangeTab} style={{ marginLeft: '20px' }}>

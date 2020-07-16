@@ -1,7 +1,7 @@
 import React from 'react'
 import { Input, Select, DatePicker, Col } from 'antd';
 import TextArea from 'antd/lib/input/TextArea';
-
+import './index.scss';
 const { Option } = Select
 
 // Input in Modal Add New Asset
@@ -17,6 +17,7 @@ const ModalInput = ({
         value: "",
     }],
     disabled,
+    value,
     ...rest
 }) => {
     const renderInput = (type) => {
@@ -28,6 +29,7 @@ const ModalInput = ({
                         onChange={onChange}
                         disabled={disabled}
                         placeholder={placeholder}
+                        value={value}
                     />
                 )
             case "textarea":
@@ -37,15 +39,17 @@ const ModalInput = ({
                         rows={4}
                         onChange={onChange}
                         placeholder={placeholder}
+                        value={value}
+                        disabled={disabled}
                     />
                 )
             case "datepicker":
                 return (
-                    <DatePicker onChange={onChange} />
+                    <DatePicker onChange={onChange} disabled={disabled} />
                 )
             case "select":
                 return (
-                    <Select className="input__select" placeholder={placeholder} onChange={onChange} >
+                    <Select className="input__select" placeholder={placeholder} onChange={onChange} value={value} disabled={disabled}>
                         {
                             optionSelectValue && optionSelectValue.map(item => <Option value={item.value} key={item.value}>{item.name}</Option>)
                         }

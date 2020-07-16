@@ -1,10 +1,11 @@
 import React from "react";
 import { Table, Row, Col, Modal, Button, Tag } from "antd";
-import { SearchOutlined, PlusOutlined, } from '@ant-design/icons';
-import ModalInput from "./ModalInput";
+import { SearchOutlined, PlusOutlined, MoreOutlined, } from '@ant-design/icons';
+import ModalInput from "../../../components/ModalInput";
 import "./index.scss";
 import { SearchInput } from "./SearchInput";
 import mockData from "./mockData";
+import Divider from "../../../components/Seperate";
 
 const typeValue = [
     {
@@ -30,12 +31,13 @@ class TabList extends React.Component {
                 sorter: (a, b) => a.code - b.code,
                 render: (text, record) => {
                     return <p onClick={() => this.props.onChooseAsset(text)} style={{ color: "#007bff", marginBottom: 0, cursor: 'pointer' }}>{text}</p>
-                }
+                },
+                width: 60,
             },
             {
                 title: "Name",
                 dataIndex: "name",
-                width: 320,
+                width: 120,
             },
             {
                 title: "Asset type",
@@ -55,10 +57,12 @@ class TabList extends React.Component {
                     },
                 ],
                 onFilter: (value, record) => record.type.indexOf(value) === 0,
+                width: 90,
             },
             {
                 title: "Asset group",
                 dataIndex: "group",
+                width: 90,
             },
             {
                 title: "Status",
@@ -66,7 +70,7 @@ class TabList extends React.Component {
                 filters: [
                     {
                         text: 'In use',
-                        value: 'In use',
+                        value: 'In Use',
                     },
                     {
                         text: 'Destroyed',
@@ -82,7 +86,7 @@ class TabList extends React.Component {
                     },
                 ],
                 onFilter: (value, record) => record.status.indexOf(value) === 0,
-                width: 170,
+                width: 60,
             },
             {
                 title: "Owner",
@@ -92,7 +96,7 @@ class TabList extends React.Component {
                         {text && text.trim().length > 0 ? text : "N/A"}
                     </div>
                 ),
-                width: 350,
+                width: 120,
             },
             {
                 title: "Site",
@@ -102,7 +106,7 @@ class TabList extends React.Component {
                         {text && text.trim().length > 0 ? text : "N/A"}
                     </div>
                 ),
-                width: 70,
+                width: 50,
             },
             {
                 title: "Overdue",
@@ -131,7 +135,7 @@ class TabList extends React.Component {
                     {
                         title: "C",
                         dataIndex: "c",
-                        width: 70,
+                        width: 40,
                         render: (text, record) => (
                             <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
                                 {text ? text : "N/A"}
@@ -141,7 +145,7 @@ class TabList extends React.Component {
                     {
                         title: "I",
                         dataIndex: "i",
-                        width: 70,
+                        width: 40,
                         render: (text, record) => (
                             <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
                                 {text ? text : "N/A"}
@@ -151,7 +155,7 @@ class TabList extends React.Component {
                     {
                         title: "A",
                         dataIndex: "a",
-                        width: 70,
+                        width: 40,
                         render: (text, record) => (
                             <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
                                 {text ? text : "N/A"}
@@ -165,19 +169,20 @@ class TabList extends React.Component {
                             const sum = record.c + record.a + record.i;
                             return <Tag color={sum <= 7 ? 'yellow' : 'red'}>{sum}</Tag>
                         },
-                        width: 70,
+                        width: 40,
                     },
                 ],
+                width: 160,
             },
             {
                 title: "",
-                width: 20,
-                render: () => { },
+                width: 30,
+                render: () => <MoreOutlined style={{ cursor: 'pointer' }} />,
             }
         ]
         this.state = {
             isOpenAddAsset: false,
-            selectedRowKeys: "",
+            selectedRowKeys: [],
             type: "",
             group: "",
             modalValue: {
@@ -195,6 +200,7 @@ class TabList extends React.Component {
                 price: 0,
                 purchaseDate: "",
                 warrantly: "",
+                associate: "",
             },
             search: {
                 code: "",
@@ -269,11 +275,13 @@ class TabList extends React.Component {
 
     // render general field of modal
     renderGeneralField = (type) => {
+        const { modalValue } = this.state;
+        const { name, unit, note, associate, site, pic } = modalValue;
         return (
             // General
             <Row className="modal-add__section">
                 <p className="title">General</p>
-                <div className="seperate"></div>
+                <Divider />
                 <Row className="modal-add__section__item">
                     <Col span={12}>
                         <ModalInput
@@ -281,6 +289,7 @@ class TabList extends React.Component {
                             label="Name"
                             required
                             name="name"
+                            value={name}
                             onChange={this.handleChangeTextValue}
                         />
                     </Col>
@@ -291,6 +300,7 @@ class TabList extends React.Component {
                                 type="input"
                                 label="Unit"
                                 name="unit"
+                                value={unit}
                                 onChange={this.handleChangeTextValue}
                             />
                         }
@@ -298,6 +308,7 @@ class TabList extends React.Component {
                             type="textarea"
                             label="Note"
                             name="note"
+                            value={note}
                             onChange={this.handleChangeTextValue}
                         />
                     </Col>
@@ -311,6 +322,7 @@ class TabList extends React.Component {
                                     type="input"
                                     label="Associate asset"
                                     name="associate"
+                                    value={associate}
                                     disabled
                                 />
                             </Col>
@@ -322,6 +334,7 @@ class TabList extends React.Component {
                                     label="Site"
                                     required
                                     name="site"
+                                    value={site}
                                     placeholder="Select a site"
                                     onChange={this.handleChooseSite}
                                     optionSelectValue={['Hà Nội']}
@@ -333,6 +346,7 @@ class TabList extends React.Component {
                                     label="PIC"
                                     name="pic"
                                     disabled
+                                    value={pic}
                                 />
                             </Col>
                         </Row>
@@ -344,17 +358,20 @@ class TabList extends React.Component {
 
     // render creation field of modal
     renderCreationField = (type) => {
+        const { modalValue } = this.state;
+        const { logicAdd, physicalAdd } = modalValue;
         return (
             //Creation
             <Row className="modal-add__section">
                 <p className="title">Creation</p>
-                <div className="seperate"></div>
+                <Divider />
                 <Row className="modal-add__section__item">
                     <Col span={12}>
                         <ModalInput
                             type="input"
                             label="Logic Add"
                             name="logicAdd"
+                            value={logicAdd}
                             onChange={this.handleChangeTextValue}
                         />
                     </Col>
@@ -363,6 +380,7 @@ class TabList extends React.Component {
                             type="input"
                             label="Physical Add"
                             name="physicalAdd"
+                            value={physicalAdd}
                             onChange={this.handleChangeTextValue}
                         />
                     </Col>
@@ -389,11 +407,13 @@ class TabList extends React.Component {
 
     // render purchasing field of modal
     renderPurchasingField = (type) => {
+        const { modalValue } = this.state;
+        const { manufacturer, warrantly, logicAdd, physicalAdd } = modalValue;
         return (
             //Purchasing
             <Row className="modal-add__section">
                 <p className="title">Purchasing</p>
-                <div className="seperate"></div>
+                <Divider />
                 {
                     type === 'physical' &&
                     <Row className="modal-add__section__item">
@@ -406,6 +426,7 @@ class TabList extends React.Component {
                                 placeholder="Select a type"
                                 onChange={this.handleChooseSelect}
                                 optionSelectValue={typeValue}
+                                value={manufacturer}
                             />
                         </Col>
                         <Col span={12}>
@@ -417,6 +438,7 @@ class TabList extends React.Component {
                                 placeholder="Select a type"
                                 onChange={this.handleChooseSelect}
                                 optionSelectValue={typeValue}
+                                value={manufacturer}
                             />
                         </Col>
                     </Row>
@@ -446,6 +468,7 @@ class TabList extends React.Component {
                                 label="Warrantly (Month)"
                                 name="warrantly"
                                 onChange={this.handleChangeTextValue}
+                                value={warrantly}
                             />
                         </Col>
                     </Row>
@@ -459,6 +482,7 @@ class TabList extends React.Component {
                                 label="Logic Add"
                                 name="logicAdd"
                                 onChange={this.handleChangeTextValue}
+                                value={logicAdd}
                             />
 
                         </Col>
@@ -468,6 +492,7 @@ class TabList extends React.Component {
                                 label="Physical Add"
                                 name="physicalAdd"
                                 onChange={this.handleChangeTextValue}
+                                value={physicalAdd}
                             />
                         </Col>
                     </Row>
@@ -568,6 +593,7 @@ class TabList extends React.Component {
         const { isOpenAddAsset, type, selectedRowKeys } = this.state;
         const rowSelection = {
             selectedRowKeys,
+            columnWidth: 20,
             onChange: this.onSelectChange,
         };
         return (
@@ -591,6 +617,7 @@ class TabList extends React.Component {
                                     optionSelectValue={typeValue}
                                     name="type"
                                     placeholder="Select a type"
+                                    value={type}
                                     onChange={this.handleChooseSelect}
                                 />
                             </Col>
@@ -601,6 +628,7 @@ class TabList extends React.Component {
                                     required
                                     optionSelectValue={typeValue}
                                     name="group"
+                                    value={type}
                                     placeholder="Select a type"
                                     onChange={this.handleChooseSelect}
                                 />
@@ -646,6 +674,7 @@ class TabList extends React.Component {
                     </div>
                 </Col>
                 <Table
+                    scroll={{ y: 300 }}
                     dataSource={mockData}
                     rowSelection={rowSelection}
                     columns={this.columns}

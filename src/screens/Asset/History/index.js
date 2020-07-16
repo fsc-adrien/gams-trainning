@@ -6,7 +6,7 @@ export default function TabHistory() {
     const { chosenAsset } = assetState;
 
     return (
-        <div>
+        <div className="history">
             <p>{chosenAsset}</p>
         </div>
     )
