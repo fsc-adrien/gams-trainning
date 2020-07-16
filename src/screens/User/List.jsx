@@ -1,9 +1,11 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { CloseOutlined, SearchOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { CloseOutlined, SearchOutlined, DeleteOutlined, EditOutlined, ConsoleSqlOutlined } from '@ant-design/icons';
 import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip } from 'antd';
 import axios from "axios";
 import SearchComponent from "./Search";
 import axiosService from '../../utils/axiosService';
+import ColumnGroup from 'antd/lib/table/ColumnGroup';
+import Loading from '../../components/Loading';
 
 const EditableContext = React.createContext();
 
@@ -86,6 +88,7 @@ const EditableCell = ({
 
     return <td {...restProps}>{childNode}</td>;
 };
+
 
 class UserList extends React.Component {
     constructor(props) {
@@ -188,18 +191,32 @@ class UserList extends React.Component {
             search: '',
             statusEdit: true,
             userEditObject: {},
+            loading: false
 
 
         };
         this.onChange = this.onChange.bind(this);
     }
 
+    
     componentDidMount() {
+        this.setState({
+            loading:true
+        })
         axiosService.get(`https://gams-temp.herokuapp.com/api/users/`)
         .then(res => {
             const { users } = res;
-            this.setState({ users })
+            this.setState({ 
+                users : users,
+               
+            });
+            
+        }).finally(() => {
+            this.setState({
+                loading: false
+            });
         })
+
     }
 
     handleEdit = (record) => {
@@ -211,17 +228,13 @@ class UserList extends React.Component {
         // this.handleUpdate(record);
     }
 
-    ChangeStatus = () => {
-        this.setState({
-            statusEdit: !this.setState.statusEdit
-        });
-    }
 
     isShowEditForm = () => {
         if (this.state.statusEdit === true) {
             this.showModal()
         }
     }
+
     handleSearch = () => {
         console.log("searching..")
         axiosService.get(`https://gams-temp.herokuapp.com/api/users/?search=${this.state.search}`)
@@ -275,6 +288,7 @@ class UserList extends React.Component {
         });
     }
 
+    
     //handle function add a row of user to list
     handleAdd = () => {
         const { count, users } = this.state;
@@ -285,14 +299,16 @@ class UserList extends React.Component {
             birthYear: this.state.inputValue.birthYear,
             birthPlace: this.state.inputValue.birthPlace,
             department: this.state.inputValue.department,
-            role: this.state.inputValue.role,
+            roles: this.state.inputValue.role,
             email: this.state.inputValue.email,
             password: this.state.inputValue.password,
         };
-        axios.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
+        console.log(newData)
+        axiosService.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
             .then(res => {
                 const newArray = [...this.state.users];
-                newArray.unshift(res.data.user) //unshift to display item has been created upto the top
+                newArray.unshift(res.user)
+                console.log(newArray) //unshift to display item has been created upto the top
                 this.setState({
                     users: newArray, //update new array for users list
                     visible: false, // close modal after click "OK" button
@@ -317,15 +333,31 @@ class UserList extends React.Component {
     handleUpdate = (info) => {
         delete info.birthDay;
         const config = { headers: {'Content-Type': 'application/json' }};
+        console.log(info);
         axiosService.put(`https://gams-temp.herokuapp.com/api/users/`, JSON.stringify(info))
             .then(res => {
-                const newArray = [...this.state.users];
-                newArray.unshift(res.data.user)
-                if (res.status === 200) {
+                const newArray = [...this.state.users].filter(user => user.id !== res.userId);
+                newArray.unshift(info)
+                console.log(res);
                     console.log('Update Success');
-                }
+                    this.setState({
+                        users: newArray, //update new array for users list
+                        visible: false, // close modal after click "OK" button
+                        visible2: false,
+                        inputValue: {
+                            firstName: '',
+                            surName: '',
+                            birthYear: '',
+                            birthPlace: '',
+                            department: '',
+                            role: '',
+                            email: '',
+                            password:'',
+                        },
+                    })
             })
             .catch(error => {
+                console.log('error :>> ', error);
                 console.log('Update Failed');
             });
     };
@@ -334,7 +366,7 @@ class UserList extends React.Component {
         this.setState({
             inputValue: {
                 ...this.state.inputValue,
-                [field]: e.target.value,
+                [field]: field === 'role' ? [e.target.value] : e.target.value,
             }
         })
     }
@@ -375,6 +407,7 @@ class UserList extends React.Component {
             visible2: false,
         });
     };
+    
 
     render() {
         const { users } = this.state;
@@ -403,6 +436,7 @@ class UserList extends React.Component {
         const { visible, confirmLoading, ModalText } = this.state;
         return (
             <div>
+                {this.state.loading && <Loading />}
                 <div className='ul-header'>
                     <h1 className='ul-header-title pr-10p'>CMC GLOBAL EMPLOYEES</h1>
                     <SearchComponent
@@ -429,6 +463,7 @@ class UserList extends React.Component {
                     onOk={this.handleAdd}
                     onCancel={this.handleCancel}
                 >
+                    
                     FirstName: <Input  value={this.state.inputValue.firstName}
                                       onChange={(e) => this.onChange("firstName", e)}/>
                     SurName: <Input value={this.state.inputValue.surName}
@@ -438,11 +473,12 @@ class UserList extends React.Component {
                                       onChange={(e) => this.onChange("birthYear", e)}/>
                     City: <Input value={this.state.inputValue.birthPlace}
                                  onChange={(e) => this.onChange("birthPlace", e)}/>
-                    Role: <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role", e)}/>
+                    Roles: <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role", e)}/>
                     DU: <Input value={this.state.inputValue.department}
                                onChange={(e) => this.onChange("department", e)}/>
-                    Your PassWord: <Input value={this.state.inputValue.password}
+                    Your Password: <Input value={this.state.inputValue.password}
                     onChange={(e) => this.onChange("password", e)}/>
+                    
                 </Modal>
                 <Modal
                     title="Edit User"
@@ -458,6 +494,7 @@ class UserList extends React.Component {
                     SurName: <Input value={this.state.userEditObject.surName}
                         name="surName" onChange={(event) => this.isChange(event)} />
                     Email: <Input value={this.state.userEditObject.email} name="email" onChange={(event) => this.isChange(event)} />
+                    
                     BirthYear: <Input value={this.state.userEditObject.birthYear}
                         name="birthYear" onChange={(event) => this.isChange(event)} />
                     City: <Input value={this.state.userEditObject.birthPlace}
@@ -465,6 +502,7 @@ class UserList extends React.Component {
                     Role: <Input value={this.state.userEditObject.role} name="roles" onChange={(event) => this.isChange(event)} />
                     DU: <Input name="department" value={this.state.userEditObject.department}
                         onChange={(event) => this.isChange(event)} />
+                        
 
                 </Modal>
 
