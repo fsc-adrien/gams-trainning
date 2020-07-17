@@ -252,23 +252,23 @@ class TabList extends React.Component {
     }
 
     // select create date
-    handleChangeCreateDate = (date) => {
+    handleChangeCreateDate = (date, dateString) => {
         const { modalValue } = this.state;
         this.setState({
             modalValue: {
                 ...modalValue,
-                createDate: date._d,
+                createDate: dateString,
             }
         })
     }
 
     // select expose date
-    handleChangeExposeDate = (date) => {
+    handleChangeExposeDate = (date, dateString) => {
         const { modalValue } = this.state;
         this.setState({
             modalValue: {
                 ...modalValue,
-                exposeDate: date._d,
+                exposeDate: dateString,
             }
         })
     }
@@ -316,7 +316,7 @@ class TabList extends React.Component {
                 {
                     type === 'physical' &&
                     <>
-                        <Row className="modal-add__section__item" style={{ height: '51px' }}>
+                        <Row className="modal-add__section__item" style={{ height: '40px' }}>
                             <Col span={12}>
                                 <ModalInput
                                     type="input"
@@ -461,7 +461,7 @@ class TabList extends React.Component {
                 </Row>
                 {
                     type === 'physical' &&
-                    <Row className="modal-add__section__item" style={{ height: '51px' }}>
+                    <Row className="modal-add__section__item" style={{ height: '40px' }}>
                         <Col span={12}>
                             <ModalInput
                                 type="input"

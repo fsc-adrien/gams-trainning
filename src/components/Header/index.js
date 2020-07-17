@@ -28,10 +28,10 @@ export default function Header() {
                 <Col span={10}>
                     <ul className="header__list">
                         <li>
-                            <NavLink to="/assets" className="header__item" activeClassName="header__item-active">Assets</NavLink>
+                            <NavLink to="/users" className="header__item" activeClassName="header__item-active">Users</NavLink>
                         </li>
                         <li>
-                            <NavLink to="/users" className="header__item" activeClassName="header__item-active">Users</NavLink>
+                            <NavLink to="/assets" className="header__item" activeClassName="header__item-active">Assets</NavLink>
                         </li>
                     </ul>
                 </Col>
