@@ -1,12 +1,31 @@
-const { CHOOSE_ASSET, CLEAR_ASSET } = require("../actions/constant");
+import {
+    CHOOSE_ASSET,
+    CLEAR_ASSET,
+    SET_GROUPS,
+    SET_SITES,
+    SET_SUPPLIERS,
+    SET_TYPES,
+    SET_MANUFACTURERS,
+    SET_ASSETS,
+} from "../actions/constant";
 
 const initialState = {
     chosenAsset: '',
-    assets: []
+    assets: [],
+    types: [],
+    groups: [],
+    manufacturers: [],
+    suppliers: [],
+    sites: [],
 };
 
 const assetReducer = (state = initialState, action) => {
     switch (action.type) {
+        case SET_ASSETS:
+            return {
+                ...state,
+                assets: action.payload
+            }
         case CHOOSE_ASSET:
             return {
                 ...state,
@@ -17,6 +36,31 @@ const assetReducer = (state = initialState, action) => {
                 ...state,
                 chosenAsset: ""
             };
+        case SET_GROUPS:
+            return {
+                ...state,
+                groups: action.payload,
+            }
+        case SET_MANUFACTURERS:
+            return {
+                ...state,
+                manufacturers: action.payload,
+            }
+        case SET_SITES:
+            return {
+                ...state,
+                sites: action.payload,
+            }
+        case SET_SUPPLIERS:
+            return {
+                ...state,
+                suppliers: action.payload,
+            }
+        case SET_TYPES:
+            return {
+                ...state,
+                types: action.payload,
+            }
         default:
             return state;
     }
