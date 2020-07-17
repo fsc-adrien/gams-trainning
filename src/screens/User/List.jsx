@@ -1,11 +1,14 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
+import "./List.scss";
 import { CloseOutlined, SearchOutlined, DeleteOutlined, EditOutlined, ConsoleSqlOutlined } from '@ant-design/icons';
-import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip } from 'antd';
+import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip, InputNumber } from 'antd';
 import axios from "axios";
 import SearchComponent from "./Search";
 import axiosService from '../../utils/axiosService';
 import ColumnGroup from 'antd/lib/table/ColumnGroup';
 import Loading from '../../components/Loading';
+import AddUser from './AddUser';
+import TableDataRow from './tableData';
 
 const EditableContext = React.createContext();
 
@@ -95,7 +98,7 @@ class UserList extends React.Component {
         super(props);
         this.columns = [
             {
-                title: 'First Name',
+                title: 'FirstName',
                 dataIndex: 'firstName',
                 width: 70,
                 editable: true,
@@ -104,7 +107,7 @@ class UserList extends React.Component {
                 render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
-                title: 'Last Name',
+                title: 'SurName',
                 dataIndex: 'surName',
                 width: 70,
                 editable: true,
@@ -133,12 +136,12 @@ class UserList extends React.Component {
                 editable: true,
                 render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
-            {
-                title: 'Role',
-                dataIndex: 'role',
-                width: 30,
-                render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
-            },
+            // {
+            //     title: 'Role',
+            //     dataIndex: 'role',
+            //     width: 30,
+            //     render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
+            // },
             {
                 title: 'DU',
                 dataIndex: 'department',
@@ -463,21 +466,95 @@ class UserList extends React.Component {
                     onOk={this.handleAdd}
                     onCancel={this.handleCancel}
                 >
-                    
-                    FirstName: <Input  value={this.state.inputValue.firstName}
-                                      onChange={(e) => this.onChange("firstName", e)}/>
-                    SurName: <Input value={this.state.inputValue.surName}
-                                    onChange={(e) => this.onChange("surName", e)}/>
-                    Email: <Input value={this.state.inputValue.email} onChange={(e) => this.onChange("email", e)}/>
-                    BirthYear: <Input value={this.state.inputValue.birthYear}
-                                      onChange={(e) => this.onChange("birthYear", e)}/>
-                    City: <Input value={this.state.inputValue.birthPlace}
-                                 onChange={(e) => this.onChange("birthPlace", e)}/>
-                    Roles: <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role", e)}/>
-                    DU: <Input value={this.state.inputValue.department}
-                               onChange={(e) => this.onChange("department", e)}/>
-                    Your Password: <Input value={this.state.inputValue.password}
+                    <Form >
+                      <Form.Item
+                         name={['user', 'FirstName']}
+                         label="FirstName"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                        <Input  value={this.state.inputValue.firstName} onChange={(e) => this.onChange("firstName", e)}/>
+                    </Form.Item>
+                    <Form.Item
+                         name={['user', 'Sur Name']}
+                         label="SurName"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                        <Input value={this.state.inputValue.surName} onChange={(e) => this.onChange("surName", e)}/>
+                    </Form.Item>
+                    <Form.Item
+                        name={['user', 'email']}
+                        label="Email"
+                        rules={[
+                          {
+                            type: 'email',
+                          },
+                        ]}
+                    >
+                        <Input value={this.state.inputValue.email} onChange={(e) => this.onChange("email", e)}/>
+                    </Form.Item>
+                    <Form.Item
+                        className="form__input"
+                        label="Password"
+                        name="password"
+                        rules={[{ required: true, message: 'Please input your password!' }]}
+                    >
+                        <Input value={this.state.inputValue.password}
                     onChange={(e) => this.onChange("password", e)}/>
+                    </Form.Item>
+
+                    <Form.Item
+                         name={['user', 'BirthYear']}
+                         label="BirthYear"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                     <Input value={this.state.inputValue.birthYear} onChange={(e) => this.onChange("birthYear", e)}/>
+                    </Form.Item>
+                    <Form.Item
+                         name={['user', 'City']}
+                         label="City"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                      <Input value={this.state.inputValue.birthPlace} onChange={(e) => this.onChange("birthPlace", e)}/>
+                    </Form.Item>
+                    <Form.Item
+                         name={['user', 'roles']}
+                         label="Role"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                     <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role", e)}/>
+                    </Form.Item>
+                    <Form.Item
+                         name={['user', 'DU']}
+                         label="DU"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                     <Input value={this.state.inputValue.department} onChange={(e) => this.onChange("department", e)}/>
+                    </Form.Item>
+                </Form>
                     
                 </Modal>
                 <Modal
@@ -489,23 +566,17 @@ class UserList extends React.Component {
                     onCancel={this.handleCancel}
                 >
 
-                    FirstName: <Input value={this.state.userEditObject.firstName}
-                        name="firstName" onChange={(event) => this.isChange(event)} />
-                    SurName: <Input value={this.state.userEditObject.surName}
-                        name="surName" onChange={(event) => this.isChange(event)} />
+                    FirstName: <Input value={this.state.userEditObject.firstName} name="firstName" onChange={(event) => this.isChange(event)} />
+                    SurName: <Input value={this.state.userEditObject.surName} name="surName" onChange={(event) => this.isChange(event)} />
                     Email: <Input value={this.state.userEditObject.email} name="email" onChange={(event) => this.isChange(event)} />
-                    
-                    BirthYear: <Input value={this.state.userEditObject.birthYear}
-                        name="birthYear" onChange={(event) => this.isChange(event)} />
-                    City: <Input value={this.state.userEditObject.birthPlace}
-                        name="birthPlace" onChange={(event) => this.isChange(event)} />
+                    Password: <Input value={this.state.inputValue.password} onChange={(e) => this.onChange("password", e)}/>
+                    BirthYear: <Input value={this.state.userEditObject.birthYear}name="birthYear" onChange={(event) => this.isChange(event)} />
+                    City: <Input value={this.state.userEditObject.birthPlace} name="birthPlace" onChange={(event) => this.isChange(event)} />
                     Role: <Input value={this.state.userEditObject.role} name="roles" onChange={(event) => this.isChange(event)} />
-                    DU: <Input name="department" value={this.state.userEditObject.department}
-                        onChange={(event) => this.isChange(event)} />
-                        
+                    DU: <Input name="department" value={this.state.userEditObject.department}onChange={(event) => this.isChange(event)} />
 
                 </Modal>
-
+                {/* <AddUser/> */}
                 <Table
                     components={components}
                     rowClassName={() => 'editable-row'}
@@ -513,6 +584,7 @@ class UserList extends React.Component {
                     dataSource={this.state.users}
                     columns={columns}
                 />
+                {/* <TableDataRow/> */}
             </div>
         );
     }
