@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import "./List.scss";
 import { CloseOutlined, SearchOutlined, DeleteOutlined, EditOutlined, ConsoleSqlOutlined } from '@ant-design/icons';
-import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip, InputNumber } from 'antd';
+import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip, InputNumber, notification, Space } from 'antd';
 import axios from "axios";
 import SearchComponent from "./Search";
 import axiosService from '../../utils/axiosService';
@@ -57,6 +57,12 @@ const EditableCell = ({
             console.log('Save failed:', errInfo);
         }
     };
+    const close = () => {
+        console.log(
+          'Notification was closed. Either the close button was clicked or duration time elapsed.',
+        );
+      };
+      
 
     let childNode = children;
 
@@ -98,7 +104,7 @@ class UserList extends React.Component {
         super(props);
         this.columns = [
             {
-                title: 'FirstName',
+                title: 'Firstname',
                 dataIndex: 'firstName',
                 width: 70,
                 editable: true,
@@ -107,7 +113,7 @@ class UserList extends React.Component {
                 render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
-                title: 'SurName',
+                title: 'Surname',
                 dataIndex: 'surName',
                 width: 70,
                 editable: true,
@@ -121,7 +127,7 @@ class UserList extends React.Component {
                 render: text => <span style={{ fontWeight: 600, cursor: 'pointer' }}>{text}</span>,
             },
             {
-                title: 'BirthYear',
+                title: 'Birthyear',
                 dataIndex: 'birthYear',
                 width: 70,
                 editable: true,
@@ -158,24 +164,13 @@ class UserList extends React.Component {
                 fixed: 'left',
                 render: (text, record) =>
                     this.state.users.length >= 1 ? (
-                        <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
-                            <DeleteOutlined />
-                        </Popconfirm>
-
-                    ) : null,
-
-            },
-            {
-                title: 'Action',
-                width: 25,
-                dataIndex: 'action',
-                key: 'action',
-                fixed: 'left',
-                render: (text, record) =>
-                    this.state.users.length >= 1 ? (
-                        <EditOutlined onClick={() => this.handleEdit(record)} />
-                    ) : null,
-
+                          <Space size="middle">
+                            <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
+                                <DeleteOutlined />
+                            </Popconfirm>
+                            <EditOutlined onClick={() => this.handleEdit(record)} />
+                        </Space>
+                    ) : null,                    
             },
         ];
         this.state = {
@@ -210,8 +205,7 @@ class UserList extends React.Component {
         .then(res => {
             const { users } = res;
             this.setState({ 
-                users : users,
-               
+                users : users,        
             });
             
         }).finally(() => {
@@ -224,9 +218,6 @@ class UserList extends React.Component {
 
     handleEdit = (record) => {
         this.setState({ userEditObject: record });
-        // ????
-        // this.isShowEditForm();
-        // ????
         this.showModal('edit')
         // this.handleUpdate(record);
     }
@@ -290,8 +281,22 @@ class UserList extends React.Component {
             }
         });
     }
+  showNotice = () =>{
+    this.openNotification ()
+  }
 
+  openNotification = () => {
+    const key = `open${Date.now()}`;
     
+    notification.open({
+      message: 'Add A New User Successfully',
+      description:
+        'A function will be be called after the notification is closed (automatically after the "duration" time of manually).',
+      key,
+    });
+  };
+
+   
     //handle function add a row of user to list
     handleAdd = () => {
         const { count, users } = this.state;
@@ -307,11 +312,12 @@ class UserList extends React.Component {
             password: this.state.inputValue.password,
         };
         console.log(newData)
+        this.showNotice()
         axiosService.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
             .then(res => {
                 const newArray = [...this.state.users];
                 newArray.unshift(res.user)
-                console.log(newArray) //unshift to display item has been created upto the top
+                // console.log(newArray) //unshift to display item has been created upto the top
                 this.setState({
                     users: newArray, //update new array for users list
                     visible: false, // close modal after click "OK" button
@@ -330,6 +336,11 @@ class UserList extends React.Component {
                 })
             }
             )
+            .catch(error => {
+                console.log('error :>> ', error);
+                console.log('Update Failed');
+                // this.showNotice()
+            });
     };
 
 
@@ -411,9 +422,18 @@ class UserList extends React.Component {
         });
     };
     
+    handleUpdateUser = (user) => {
+        const newArray = [...this.state.users];
+        newArray.unshift(user)
+                // console.log(newArray)
+        this.setState({
+            users: newArray
+        })
+    }
 
     render() {
-        const { users } = this.state;
+        const { users, loading } = this.state;
+        const {  } = this.props;
         const components = {
             body: {
                 row: EditableRow,
@@ -439,7 +459,6 @@ class UserList extends React.Component {
         const { visible, confirmLoading, ModalText } = this.state;
         return (
             <div>
-                {this.state.loading && <Loading />}
                 <div className='ul-header'>
                     <h1 className='ul-header-title pr-10p'>CMC GLOBAL EMPLOYEES</h1>
                     <SearchComponent
@@ -458,10 +477,10 @@ class UserList extends React.Component {
                         marginLeft: '20px'
                     }}
                 >
-                    Add a row
+                   Create A New User
                 </Button>
                 <Modal
-                    title="Create A User"
+                    title="Create A New User"
                     visible={this.state.visible}
                     onOk={this.handleAdd}
                     onCancel={this.handleCancel}
@@ -469,7 +488,7 @@ class UserList extends React.Component {
                     <Form >
                       <Form.Item
                          name={['user', 'FirstName']}
-                         label="FirstName"
+                         label="Firstname"
                          rules={[
                            {
                              required: true,
@@ -480,7 +499,7 @@ class UserList extends React.Component {
                     </Form.Item>
                     <Form.Item
                          name={['user', 'Sur Name']}
-                         label="SurName"
+                         label="Surname"
                          rules={[
                            {
                              required: true,
@@ -495,6 +514,7 @@ class UserList extends React.Component {
                         rules={[
                           {
                             type: 'email',
+                            required: true,
                           },
                         ]}
                     >
@@ -512,7 +532,7 @@ class UserList extends React.Component {
 
                     <Form.Item
                          name={['user', 'BirthYear']}
-                         label="BirthYear"
+                         label="Birthyear"
                          rules={[
                            {
                              required: true,
@@ -557,6 +577,7 @@ class UserList extends React.Component {
                 </Form>
                     
                 </Modal>
+                
                 <Modal
                     title="Edit User"
                     visible={this.state.visible2}
@@ -569,20 +590,21 @@ class UserList extends React.Component {
                     FirstName: <Input value={this.state.userEditObject.firstName} name="firstName" onChange={(event) => this.isChange(event)} />
                     SurName: <Input value={this.state.userEditObject.surName} name="surName" onChange={(event) => this.isChange(event)} />
                     Email: <Input value={this.state.userEditObject.email} name="email" onChange={(event) => this.isChange(event)} />
-                    Password: <Input value={this.state.inputValue.password} onChange={(e) => this.onChange("password", e)}/>
-                    BirthYear: <Input value={this.state.userEditObject.birthYear}name="birthYear" onChange={(event) => this.isChange(event)} />
+                    Password: <Input value={this.state.inputValue.password} name="password"  onChange={(event) => this.isChange(event)}/>
+                    BirthYear: <Input value={this.state.userEditObject.birthYear} name="birthYear" onChange={(event) => this.isChange(event)} />
                     City: <Input value={this.state.userEditObject.birthPlace} name="birthPlace" onChange={(event) => this.isChange(event)} />
                     Role: <Input value={this.state.userEditObject.role} name="roles" onChange={(event) => this.isChange(event)} />
                     DU: <Input name="department" value={this.state.userEditObject.department}onChange={(event) => this.isChange(event)} />
 
                 </Modal>
-                {/* <AddUser/> */}
+                <AddUser updateStateUser={this.handleUpdateUser}/>
                 <Table
                     components={components}
                     rowClassName={() => 'editable-row'}
                     bordered
                     dataSource={this.state.users}
                     columns={columns}
+                    loading={loading}
                 />
                 {/* <TableDataRow/> */}
             </div>
