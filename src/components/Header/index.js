@@ -10,6 +10,8 @@ export default function Header() {
 
     const handleLogout = () => {
         Cookies.remove("token");
+        Cookies.remove("fullName");
+        Cookies.remove("department");
         history.push("/");
     }
 

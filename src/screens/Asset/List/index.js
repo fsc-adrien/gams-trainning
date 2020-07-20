@@ -4,7 +4,6 @@ import { SearchOutlined, PlusOutlined, MoreOutlined, } from '@ant-design/icons';
 import ModalInput from "../../../components/ModalInput";
 import "./index.scss";
 import { SearchInput } from "./SearchInput";
-import mockData from "./mockData";
 import Divider from "../../../components/Seperate";
 import { connect } from "react-redux";
 import axiosService from "../../../utils/axiosService";
@@ -12,6 +11,7 @@ import { ENDPOINT, API_ASSET } from "../../../constants/api";
 import { setAssets } from "../../../actions/action";
 import Loading from "../../../components/Loading";
 import Tag from "../../../components/Tag";
+import AddModal from "./AddModal";
 
 class TabList extends React.Component {
     constructor(props) {
@@ -22,7 +22,7 @@ class TabList extends React.Component {
                 dataIndex: "assetCode",
                 sorter: (a, b) => a.code - b.code,
                 render: (text, record) => {
-                    return <p onClick={() => this.props.onChooseAsset(text)} style={{ color: "#007bff", marginBottom: 0, cursor: 'pointer' }}>{text}</p>
+                    return <p onClick={() => this.props.onChooseAsset(record.id)} style={{ color: "#007bff", marginBottom: 0, cursor: 'pointer' }}>{text}</p>
                 },
                 width: 60,
             },
@@ -48,7 +48,7 @@ class TabList extends React.Component {
                         value: "Software & Service Asset"
                     },
                 ],
-                onFilter: (value, record) => record.type.indexOf(value) === 0,
+                onFilter: (value, record) => record.assetType.indexOf(value) === 0,
                 width: 90,
             },
             {
@@ -58,8 +58,12 @@ class TabList extends React.Component {
             },
             {
                 title: "Status",
-                dataIndex: "status",
+                dataIndex: "assetStatus",
                 filters: [
+                    {
+                        text: 'Available',
+                        value: 'Available',
+                    },
                     {
                         text: 'In use',
                         value: 'In Use',
@@ -77,7 +81,7 @@ class TabList extends React.Component {
                         value: 'Lost',
                     },
                 ],
-                onFilter: (value, record) => record.status.indexOf(value) === 0,
+                onFilter: (value, record) => record.assetStatus.indexOf(value) === 0,
                 width: 60,
             },
             {
@@ -106,17 +110,17 @@ class TabList extends React.Component {
                 filters: [
                     {
                         text: 'Yes',
-                        value: 1,
+                        value: true,
                     },
                     {
                         text: 'No',
-                        value: 0,
+                        value: false,
                     },
                 ],
                 onFilter: (value, record) => record.overdue === value,
                 render: (text, record) => (
                     <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
-                        {text === 1 ? "Yes" : "No"}
+                        {text ? "Yes" : "No"}
                     </div>
                 ),
                 width: 50,
@@ -214,7 +218,13 @@ class TabList extends React.Component {
         })
         axiosService.get(`${ENDPOINT}${API_ASSET}`)
             .then(res => {
-                handleSetAssets(res.assets);
+                const newArrAssets = res.assets.map(item => {
+                    return {
+                        ...item,
+                        key: item.assetCode,
+                    }
+                })
+                handleSetAssets(newArrAssets);
             })
             .catch(err => console.log('err', err))
             .finally(() => {
@@ -259,7 +269,10 @@ class TabList extends React.Component {
         if (field === 'type' || field === 'group') {
             this.setState({
                 [field]: value,
-            }, () => this.handleFomatGroupValues(this.state.type))
+            }, () => {
+                if (field === 'type')
+                    this.handleFomatGroupValues(type)
+            })
         } else {
             this.setState({
                 modalValue: {
@@ -275,6 +288,7 @@ class TabList extends React.Component {
         const newGroupValues = groups.filter(item => item.assetType === type);
         this.setState({
             groupsValues: newGroupValues,
+            group: "",
         })
     }
 
@@ -300,257 +314,6 @@ class TabList extends React.Component {
         })
     }
 
-    // render general field of modal
-    renderGeneralField = (type) => {
-        const { modalValue } = this.state;
-        const { name, unit, note, associate, site, pic } = modalValue;
-        const { sites } = this.props;
-
-        return (
-            // General
-            <Row className="modal-add__section">
-                <p className="title">General</p>
-                <Divider />
-                <Row className="modal-add__section__item">
-                    <Col span={12}>
-                        <ModalInput
-                            type="textarea"
-                            label="Name"
-                            required
-                            name="name"
-                            value={name}
-                            onChange={this.handleChangeTextValue}
-                        />
-                    </Col>
-                    <Col span={12}>
-                        {
-                            type === "physical" &&
-                            <ModalInput
-                                type="input"
-                                label="Unit"
-                                name="unit"
-                                value={unit}
-                                onChange={this.handleChangeTextValue}
-                            />
-                        }
-                        <ModalInput
-                            type="textarea"
-                            label="Note"
-                            name="note"
-                            value={note}
-                            onChange={this.handleChangeTextValue}
-                        />
-                    </Col>
-                </Row>
-                {
-                    type === 1 &&
-                    <>
-                        <Row className="modal-add__section__item" style={{ height: '40px' }}>
-                            <Col span={12}>
-                                <ModalInput
-                                    type="input"
-                                    label="Associate asset"
-                                    name="associate"
-                                    value={associate}
-                                    disabled
-                                />
-                            </Col>
-                        </Row>
-                        <Row className="modal-add__section__item">
-                            <Col span={12}>
-                                <ModalInput
-                                    type="select"
-                                    label="Site"
-                                    required
-                                    name="site"
-                                    value={site}
-                                    placeholder="Select a site"
-                                    onChange={(value) => this.handleChooseSelect(value, "site")}
-                                    optionSelectValue={sites}
-                                />
-                            </Col>
-                            <Col span={12}>
-                                <ModalInput
-                                    type="input"
-                                    label="PIC"
-                                    name="pic"
-                                    disabled
-                                    value={pic}
-                                />
-                            </Col>
-                        </Row>
-                    </>
-                }
-            </Row>
-        )
-    }
-
-    // render creation field of modal
-    renderCreationField = (type) => {
-        const { modalValue } = this.state;
-        const { logicAdd, physicalAdd } = modalValue;
-        return (
-            //Creation
-            <Row className="modal-add__section">
-                <p className="title">Creation</p>
-                <Divider />
-                <Row className="modal-add__section__item">
-                    <Col span={12}>
-                        <ModalInput
-                            type="input"
-                            label="Logic Add"
-                            name="logicAdd"
-                            value={logicAdd}
-                            onChange={this.handleChangeTextValue}
-                        />
-                    </Col>
-                    <Col span={12}>
-                        <ModalInput
-                            type="input"
-                            label="Physical Add"
-                            name="physicalAdd"
-                            value={physicalAdd}
-                            onChange={this.handleChangeTextValue}
-                        />
-                    </Col>
-                </Row>
-                <Row>
-                    <Col span={12}>
-                        <ModalInput
-                            type="datepicker"
-                            label="Created Date"
-                            name="createDate"
-                            onChange={this.handleChangeDate}
-                        />
-                    </Col>
-                    <Col span={12}>
-                        <ModalInput
-                            type="datepicker"
-                            label="Expose Date"
-                            name="exposeDate"
-                            onChange={this.handleChangeDate}
-                        />
-                    </Col>
-                </Row>
-            </Row>
-        )
-    }
-
-    // render purchasing field of modal
-    renderPurchasingField = (type) => {
-        const { modalValue } = this.state;
-        const { manufacturer, warrantly, logicAdd, physicalAdd, supplier } = modalValue;
-        const { manufacturers, suppliers } = this.props;
-
-        return (
-            //Purchasing
-            <Row className="modal-add__section">
-                <p className="title">Purchasing</p>
-                <Divider />
-                {
-                    type === 1 &&
-                    <Row className="modal-add__section__item">
-                        <Col span={12}>
-                            <ModalInput
-                                type="select"
-                                label="Manufacturer"
-                                required
-                                name="manufacturer"
-                                placeholder="Select a manufacturer"
-                                onChange={(value) => this.handleChooseSelect(value, "manufacturer")}
-                                optionSelectValue={manufacturers}
-                                value={manufacturer}
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <ModalInput
-                                type="select"
-                                label="Supplier"
-                                required
-                                name="supplier"
-                                placeholder="Select a supplier"
-                                onChange={(value) => this.handleChooseSelect(value, "supplier")}
-                                optionSelectValue={suppliers}
-                                value={supplier}
-                            />
-                        </Col>
-                    </Row>
-                }
-                <Row className="modal-add__section__item">
-                    <Col span={12}>
-                        <ModalInput
-                            type="datepicker"
-                            label="Created Date"
-                            name="createDate"
-                            onChange={this.handleChangeDate}
-                        />
-                    </Col>
-                    <Col span={12}>
-                        <ModalInput
-                            type="datepicker"
-                            label="Expose Date"
-                            name="exposeDate"
-                            onChange={this.handleChangeDate}
-                        />
-                    </Col>
-                </Row>
-                {
-                    type === 1 &&
-                    <Row className="modal-add__section__item" style={{ height: '40px' }}>
-                        <Col span={12}>
-                            <ModalInput
-                                type="input"
-                                label="Warrantly (Month)"
-                                name="warrantly"
-                                onChange={this.handleChangeTextValue}
-                                value={warrantly}
-                            />
-                        </Col>
-                    </Row>
-                }
-                {
-                    type === 3 &&
-                    <Row className="modal-add__section__item">
-                        <Col span={12}>
-                            <ModalInput
-                                type="input"
-                                label="Logic Add"
-                                name="logicAdd"
-                                onChange={this.handleChangeTextValue}
-                                value={logicAdd}
-                            />
-
-                        </Col>
-                        <Col span={12}>
-                            <ModalInput
-                                type="input"
-                                label="Physical Add"
-                                name="physicalAdd"
-                                onChange={this.handleChangeTextValue}
-                                value={physicalAdd}
-                            />
-                        </Col>
-                    </Row>
-                }
-            </Row>
-        )
-    }
-
-    // render modal 
-    handleRenderModalField = (type) => {
-        if (!type || type === "" || type.length === 0) return;
-        return (
-            <>
-                {/* General */}
-                {this.renderGeneralField(type)}
-                {/* Creation */}
-                {type === 2 && this.renderCreationField(type)}
-                {/* Purchasing */}
-                {type !== 2 && this.renderPurchasingField(type)}
-            </>
-        )
-    }
-
     // handle create new asset
     handleSubmitForm = (e) => {
         e.preventDefault();
@@ -571,6 +334,8 @@ class TabList extends React.Component {
                     supplier,
                     price,
                     purchaseDate,
+                    createDate,
+                    exposeDate,
                     warrantly
                 }
                 break;
@@ -625,8 +390,8 @@ class TabList extends React.Component {
     }
 
     render() {
-        const { isOpenAddAsset, type, selectedRowKeys, group, loading, groupsValues } = this.state;
-        const { types, assets } = this.props;
+        const { isOpenAddAsset, type, selectedRowKeys, group, loading, groupsValues, modalValue } = this.state;
+        const { types, assets, sites, manufacturers, suppliers } = this.props;
         const rowSelection = {
             selectedRowKeys,
             columnWidth: 20,
@@ -638,44 +403,22 @@ class TabList extends React.Component {
                 {loading && <Loading />}
                 {
                     isOpenAddAsset &&
-                    <Modal
-                        className="modal-add"
-                        title="Add new asset"
+                    <AddModal
                         visible={isOpenAddAsset}
-                        onCancel={this.handleToggleAddAsset}
-                        okText="Save"
-                        onOk={this.handleSubmitForm}
-                    >
-                        <Row>
-                            <Col span={12}>
-                                <ModalInput
-                                    type="select"
-                                    label="Type"
-                                    required
-                                    optionSelectValue={types}
-                                    name="type"
-                                    placeholder="Select a type"
-                                    value={type}
-                                    onChange={(value) => this.handleChooseSelect(value, "type")}
-                                />
-                            </Col>
-                            <Col span={12}>
-                                <ModalInput
-                                    type="select"
-                                    label="Group"
-                                    required
-                                    optionSelectValue={groupsValues}
-                                    name="group"
-                                    value={group}
-                                    placeholder="Select a group"
-                                    onChange={(value) => this.handleChooseSelect(value, "group")}
-                                />
-                            </Col>
-                        </Row>
-                        {
-                            this.handleRenderModalField(type)
-                        }
-                    </Modal>
+                        type={type}
+                        group={group}
+                        modalValue={modalValue}
+                        types={types}
+                        groups={groupsValues}
+                        sites={sites}
+                        manufacturers={manufacturers}
+                        suppliers={suppliers}
+                        handleOnChangeText={this.handleChangeTextValue}
+                        handleOnSelect={this.handleChooseSelect}
+                        handleOnChangeDate={this.handleChangeDate}
+                        handleOpen={this.handleToggleAddAsset}
+                        handleSubmit={this.handleSubmitForm}
+                    />
                 }
                 <Col span={15}>
                     <div className="searchField">

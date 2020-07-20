@@ -32,7 +32,7 @@ export default function Asset() {
             dispatch(setSuppliers(suppliers))
         }
         fetchData();
-    }, []);
+    }, [dispatch]);
 
     const handleChooseAsset = useCallback((code) => {
         dispatch(chooseAsset(code));

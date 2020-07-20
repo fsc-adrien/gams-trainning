@@ -1,10 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { CloseOutlined } from '@ant-design/icons';
 import "./index.scss";
-import { Button, Row, Col, DatePicker } from 'antd';
+import { Button, Row, Col, AutoComplete, Tag } from 'antd';
 import Divider from '../../../components/Seperate';
 import ModalInput from '../../../components/ModalInput';
-import mockData from './mockData';
+import axiosService from '../../../utils/axiosService';
+import { ENDPOINT, API_ASSET_DETAIL, API_ASSOCIATED_ASSET } from '../../../constants/api';
+import Loading from '../../../components/Loading';
 
 export default function TabDetail() {
     const assetState = useSelector(state => state.assetReducer);
@@ -16,36 +19,63 @@ export default function TabDetail() {
         suppliers,
         sites
     } = assetState;
+    const dispatch = useDispatch();
     const [editing, setEditing] = useState(false);
-    const [editForm, setEditForm] = useState({
-        key: "",
-        code: "",
-        name: "",
-        assetTypeId: "",
-        assetGroupId: "",
-        note: "",
-        associatedAsset: [],
-        siteId: "",
-        status: "",
-        owner: "",
-        supplierId: "",
-        purchaseDate: "",
-        manufacturerId: "",
-        price: "",
-        warranty: "",
-        cMark: "",
-        iMark: "",
-        aMark: "",
-        note2: "",
-        assignDateStart: "",
-        assignDateEnd: "",
-    });
-    const [groupValues, setGroupValues] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [editForm, setEditForm] = useState({});
+    const [groupValues, setGroupValues] = useState(groups);
+    const [autoOptions, setAutoOptions] = useState([]);
+    const [chosenAssociatedAsset, setChosenAssociatedAsset] = useState([]);
 
     // componentDidMount
     useEffect(() => {
         // call api here
-    }, [])
+        setLoading(true);
+        axiosService.get(`${ENDPOINT}${API_ASSET_DETAIL}${chosenAsset}`)
+            .then(res => {
+                setEditForm(res.asset)
+                const type = Number.parseInt(res.asset.assetType);
+                const newGroupValues = groups.filter(item => item.assetType === type);
+                setChosenAssociatedAsset(res.asset.associatedAssetCode || []);
+                setGroupValues(newGroupValues);
+            })
+            .catch(err => console.log('err', err))
+            .finally(() => setLoading(false));
+    }, [chosenAsset])
+
+    // componentDidUpdate
+    useEffect(() => {
+        const { ciaA, ciaC, ciaI } = editForm;
+        if (ciaI > 0 && ciaA > 0 && ciaC > 0) {
+            const sum = ciaA + ciaC + ciaI;
+            setEditForm(prevState => {
+                return {
+                    ...prevState,
+                    'ciaSum': sum
+                }
+            })
+        }
+    }, [editForm.ciaI, editForm.ciaC, editForm.ciaA])
+
+    // componentDidUpdate
+    useEffect(() => {
+        let importance = "";
+        if (0 < editForm.ciaSum && editForm.ciaSum <= 4) {
+            importance = "Low";
+        } else if (editForm.ciaSum === 5) {
+            importance = "Medium";
+        } else if (5 < editForm.ciaSum && editForm.ciaSum <= 7) {
+            importance = "High";
+        } else if (editForm.ciaSum > 7) {
+            importance = "Special";
+        }
+        setEditForm(prevState => {
+            return {
+                ...prevState,
+                'ciaImportance': importance,
+            }
+        });
+    }, [editForm.ciaSum])
 
     const handleEditing = () => {
         setEditing(true);
@@ -69,15 +99,7 @@ export default function TabDetail() {
                 [type]: value,
             }
         })
-        if (type === 'type') {
-            handleSetGroupValues(value)
-        }
     }, []);
-
-    const handleSetGroupValues = (type) => {
-        const newGroupValues = groups.filter(item => item.assetType === type);
-        setGroupValues(newGroupValues);
-    }
 
     // select create date
     const handleChangeCreateDate = useCallback((date, dateString, label) => {
@@ -89,12 +111,35 @@ export default function TabDetail() {
         })
     }, []);
 
+    const handleSearchAssociated = (searchTxt) => {
+        if (searchTxt && searchTxt.trim().length > 0) {
+            axiosService.get(`${ENDPOINT}${API_ASSOCIATED_ASSET}?search=${searchTxt}`)
+                .then(res => {
+                    const options = res.results.map(item => {
+                        return {
+                            ...item,
+                            value: item.assetCode
+                        }
+                    })
+                    setAutoOptions(options)
+                })
+        }
+    }
+
+    const handleSelectAssociated = (value, option) => {
+        console.log('value', option);
+        let chosen = [...chosenAssociatedAsset, option];
+        setChosenAssociatedAsset(chosen);
+    }
+
     const handleSubmitEdit = () => {
         console.log("Update Edit", editForm);
         setEditing(false);
     }
+
     return (
         <div className="detail">
+            {loading && <Loading />}
             <div className="detail__section">
                 <div className="detail__section__header">
                     <p className="header__title">General</p>
@@ -108,7 +153,7 @@ export default function TabDetail() {
                             label="Code"
                             name="code"
                             disabled
-                            value={mockData.code}
+                            value={editForm.assetCode}
                         />
                         <ModalInput
                             type="textarea"
@@ -117,44 +162,51 @@ export default function TabDetail() {
                             name="name"
                             onChange={handleChangeInput}
                             disabled={!editing}
-                            value={mockData.name}
-                        // value={editForm.name}
+                            value={editForm.name}
                         />
-                        <ModalInput
-                            type="select"
-                            optionSelectValue={[]}
-                            selectMode="multiple"
-                            label="Asset Associate"
-                            name="assetGroupId"
-                            onChange={handleChangeInput}
-                            disabled={!editing}
-                            value={mockData.associatedAsset}
-                        // value={editForm.associatedAsset}
-                        />
+                        <div className="input">
+                            <Col span={7}><p className="input__name">Associated asset</p></Col>
+                            <Col span={17}>
+                                <AutoComplete
+                                    style={{
+                                        width: '100%',
+                                    }}
+                                    options={autoOptions}
+                                    onSelect={handleSelectAssociated}
+                                    onSearch={handleSearchAssociated}
+                                    disabled={!editing}
+                                />
+                                <div style={{ marginTop: '10px' }}>
+                                    {
+                                        chosenAssociatedAsset?.length > 0 &&
+                                        chosenAssociatedAsset.map(item => {
+                                            return <Tag closable onClose={() => { }}>{item.name}</Tag>
+                                        })
+                                    }
+                                </div>
+                            </Col>
+                        </div>
                     </Col>
                     <Col span={10}>
                         <ModalInput
                             type="select"
                             label="Type"
                             optionSelectValue={types}
-                            name="type"
+                            name="assetType"
                             placeholder="Select a type"
-                            onChange={(value) => handleChooseSelect(value, 'type')}
-                            disabled={!editing}
-                            value={mockData.assetTypeId}
-                        // value={editForm.assetTypeId}
+                            disabled
+                            value={Number.parseInt(editForm.assetType)}
                         />
                         <ModalInput
                             type="select"
                             label="Group"
                             required
                             optionSelectValue={groupValues}
-                            name="group"
+                            name="assetGroup"
                             placeholder="Select a group"
-                            onChange={(value) => handleChooseSelect(value, 'group')}
+                            onChange={(value) => handleChooseSelect(value, 'assetGroup')}
                             disabled={!editing}
-                            value={mockData.assetGroupId}
-                        // value={editForm.assetGroupId}
+                            value={Number.parseInt(editForm.assetGroup)}
                         />
                         <ModalInput
                             type="input"
@@ -162,8 +214,7 @@ export default function TabDetail() {
                             name="unit"
                             onChange={handleChangeInput}
                             disabled={!editing}
-                            value={mockData.unit}
-                        // value={editForm.name}
+                            value={editForm.unit}
                         />
                         <ModalInput
                             type="textarea"
@@ -171,8 +222,7 @@ export default function TabDetail() {
                             name="note"
                             onChange={handleChangeInput}
                             disabled={!editing}
-                            value={mockData.note}
-                        // value={editForm.note}
+                            value={editForm.note}
                         />
                     </Col>
                 </Row>
@@ -190,7 +240,7 @@ export default function TabDetail() {
                             name="status"
                             onChange={handleChangeInput}
                             disabled={!editing}
-                            value={mockData.status}
+                            value={editForm.assetStatus}
                         />
                         <ModalInput
                             type="input"
@@ -198,7 +248,7 @@ export default function TabDetail() {
                             name="owner"
                             onChange={handleChangeInput}
                             disabled={!editing}
-                            value={mockData.owner}
+                            value={editForm.owner}
                         />
                     </Col>
                     <Col span={10}>
@@ -209,10 +259,9 @@ export default function TabDetail() {
                             optionSelectValue={sites}
                             name="site"
                             placeholder="Select a Site"
-                            onChange={(value) => handleChooseSelect(value, 'site')}
+                            onChange={(value) => handleChooseSelect(value, 'officeSite')}
                             disabled={!editing}
-                            value={mockData.siteId}
-                        // value={editForm.siteId}
+                            value={Number.parseInt(editForm.officeSite)}
                         />
                         <ModalInput
                             type="datepicker"
@@ -222,8 +271,8 @@ export default function TabDetail() {
                             name2="assignDateEnd"
                             onChange={handleChangeCreateDate}
                             disabled={!editing}
-                            value={mockData.assignDateStart}
-                            value2={mockData.assignDateEnd}
+                            value={editForm.assignDateStart}
+                            value2={editForm.assignDateEnd}
                             line={2}
                         />
                     </Col>
@@ -241,23 +290,22 @@ export default function TabDetail() {
                             label="Manufacturer"
                             required
                             optionSelectValue={manufacturers}
-                            name="manufacturerId"
+                            name="manufacturer"
                             placeholder="Select a Manufacturer"
-                            onChange={(value) => handleChooseSelect(value, 'manufacturerId')}
+                            onChange={(value) => handleChooseSelect(value, 'manufacturer')}
                             disabled={!editing}
-                            value={mockData.manufacturerId}
-                        // value={editForm.manufacturerId}
+                            value={Number.parseInt(editForm.manufacturer)}
                         />
                         <ModalInput
                             type="input"
                             label="Price (VND)"
                             label2="Warrantly (Month)"
                             name="price"
-                            name2="warranty"
+                            name2="warrantyInMonth"
                             disabled={!editing}
                             onChange={handleChangeInput}
-                            value={mockData.price}
-                            value2={mockData.warranty}
+                            value={editForm.price}
+                            value2={editForm.warrantyInMonth}
                             line={2}
                         />
                     </Col>
@@ -271,8 +319,7 @@ export default function TabDetail() {
                             placeholder="Select a Supplier"
                             onChange={(value) => handleChooseSelect(value, 'supplier')}
                             disabled={!editing}
-                            value={mockData.supplierId}
-                        // value={editForm.supplierId}
+                            value={Number.parseInt(editForm.supplier)}
                         />
                         <ModalInput
                             type="datepicker"
@@ -280,7 +327,7 @@ export default function TabDetail() {
                             name="purchaseDate"
                             onChange={handleChangeCreateDate}
                             disabled={!editing}
-                            value={mockData.purchaseDate}
+                            value={editForm.purchaseDate}
                         />
                     </Col>
                 </Row>
@@ -293,51 +340,82 @@ export default function TabDetail() {
                 <Row justify="space-between">
                     <Col span={10}>
                         <ModalInput
-                            type="input"
+                            type="select"
                             label="C-Confidentiality "
-                            name="c"
-                            onChange={handleChangeInput}
+                            name="ciaC"
+                            optionSelectValue={[{
+                                name: "1",
+                                value: 1,
+                            }, {
+                                name: "2",
+                                value: 2,
+                            }, {
+                                name: "3",
+                                value: 3,
+                            },]}
+                            onChange={(value) => handleChooseSelect(value, 'ciaC')}
                             disabled={!editing}
-                            value={mockData.cMark || "N/A"}
+                            value={editForm.ciaC}
                         />
                         <ModalInput
-                            type="input"
+                            type="select"
                             label="I-Intergrity"
-                            name="i"
-                            onChange={handleChangeInput}
+                            name="ciaI"
+                            optionSelectValue={[{
+                                name: "1",
+                                value: 1,
+                            }, {
+                                name: "2",
+                                value: 2,
+                            }, {
+                                name: "3",
+                                value: 3,
+                            },]}
+                            onChange={(value) => handleChooseSelect(value, 'ciaI')}
                             disabled={!editing}
-                            value={mockData.iMark || "N/A"}
+                            value={editForm.ciaI}
                         />
                         <ModalInput
-                            type="input"
+                            type="select"
                             label="A-Availability"
-                            name="a"
-                            onChange={handleChangeInput}
+                            name="ciaA"
+                            optionSelectValue={[{
+                                name: "1",
+                                value: 1,
+                            }, {
+                                name: "2",
+                                value: 2,
+                            }, {
+                                name: "3",
+                                value: 3,
+                            },]}
+                            onChange={(value) => handleChooseSelect(value, 'ciaA')}
                             disabled={!editing}
-                            value={mockData.aMark || "N/A"}
+                            value={editForm.ciaA}
                         />
                     </Col>
                     <Col span={10}>
                         <ModalInput
                             type="input"
                             label="C + I + A"
-                            name="sum"
+                            name="ciaSum"
                             disabled={!editing}
-                            value={mockData.cMark + mockData.iMark + mockData.aMark || "N/A"}
+                            value={editForm.ciaSum}
                         />
                         <ModalInput
                             type="input"
-                            label="Important"
-                            name="important"
+                            label="Importance"
+                            name="ciaImportance"
                             disabled={!editing}
+                            value={editForm.ciaImportance}
                         />
                         <ModalInput
                             type="input"
                             label="Note"
-                            name="note2"
+                            name="ciaNote"
                             onChange={handleChangeInput}
                             disabled={!editing}
-                            value={mockData.note2}
+                            value={editForm.ciaNote}
                         />
                     </Col>
                 </Row>
