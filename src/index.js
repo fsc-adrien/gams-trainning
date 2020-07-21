@@ -4,11 +4,19 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, compose } from 'redux';
 import { BrowserRouter } from 'react-router-dom';
 import reducer from './reducer';
 
-const store = createStore(reducer);
+
+//using Redux DevTools to see what’s going on under the hood in our store
+const reduxDevTools =
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
+
+const store = createStore(
+    reducer,
+    compose(reduxDevTools)
+);
 
 ReactDOM.render(
     <React.StrictMode>

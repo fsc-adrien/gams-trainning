@@ -7,9 +7,15 @@ import './index.scss';
 
 export default function Header() {
     const history = useHistory();
+    const fullname = Cookies.get("fullName");
+    const department = Cookies.get("department");
+
 
     const handleLogout = () => {
         Cookies.remove("token");
+        Cookies.remove("fullName");
+        Cookies.remove("department");
+        Cookies.remove("id");
         history.push("/");
     }
 
@@ -28,15 +34,16 @@ export default function Header() {
                 <Col span={10}>
                     <ul className="header__list">
                         <li>
-                            <NavLink to="/assets" className="header__item" activeClassName="header__item-active">Assets</NavLink>
+                            <NavLink to="/users" className="header__item" activeClassName="header__item-active">Users</NavLink>
                         </li>
                         <li>
-                            <NavLink to="/users" className="header__item" activeClassName="header__item-active">Users</NavLink>
+                            <NavLink to="/assets" className="header__item" activeClassName="header__item-active">Assets</NavLink>
                         </li>
                     </ul>
                 </Col>
                 <Col span={11}>
                     <div className="header__logout">
+                        <p>{fullname + ' - ' + department}</p>
                         <Button onClick={handleLogout} className="btnLogout">Logout</Button>
                     </div>
                 </Col>
