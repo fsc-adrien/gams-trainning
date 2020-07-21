@@ -1,27 +1,17 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import "./List.scss";
 import { CloseOutlined, SearchOutlined, DeleteOutlined, EditOutlined, ConsoleSqlOutlined } from '@ant-design/icons';
-import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip, InputNumber, notification, Space } from 'antd';
+import { Table, Input, Modal, Button, Popconfirm, Form, Tooltip, InputNumber, Space, notification } from 'antd';
 import axios from "axios";
 import SearchComponent from "./Search";
 import axiosService from '../../utils/axiosService';
 import ColumnGroup from 'antd/lib/table/ColumnGroup';
 import Loading from '../../components/Loading';
 import AddUser from './AddUser';
-import TableDataRow from './tableData';
 
 const EditableContext = React.createContext();
 
-const EditableRow = ({ index, ...props }) => {
-    const [form] = Form.useForm();
-    return (
-        <Form form={form} component={false}>
-            <EditableContext.Provider value={form}>
-                <tr {...props} />
-            </EditableContext.Provider>
-        </Form>
-    );
-};
+
 
 const EditableCell = ({
     title,
@@ -57,11 +47,7 @@ const EditableCell = ({
             console.log('Save failed:', errInfo);
         }
     };
-    const close = () => {
-        console.log(
-          'Notification was closed. Either the close button was clicked or duration time elapsed.',
-        );
-      };
+    
       
 
     let childNode = children;
@@ -193,7 +179,7 @@ class UserList extends React.Component {
 
 
         };
-        this.onChange = this.onChange.bind(this);
+
     }
 
     
@@ -281,68 +267,22 @@ class UserList extends React.Component {
             }
         });
     }
-  showNotice = () =>{
-    this.openNotification ()
-  }
 
-  openNotification = () => {
-    const key = `open${Date.now()}`;
+    showNotice = () =>{
+        this.openNotification();
+      }
+    openNotification = () => {
+        const key = `open${Date.now()}`;
+        
+        notification.open({
+          message: 'Update User Successfully',
+          description:
+            'A function will be be called after the notification is closed (automatically after the "duration" time of manually).',
+          key,
+          statusNotice : false,
+        });
+      };
     
-    notification.open({
-      message: 'Add A New User Successfully',
-      description:
-        'A function will be be called after the notification is closed (automatically after the "duration" time of manually).',
-      key,
-    });
-  };
-
-   
-    //handle function add a row of user to list
-    handleAdd = () => {
-        const { count, users } = this.state;
-        const newData = {
-            key: count,
-            firstName: this.state.inputValue.firstName,
-            surName: this.state.inputValue.surName,
-            birthYear: this.state.inputValue.birthYear,
-            birthPlace: this.state.inputValue.birthPlace,
-            department: this.state.inputValue.department,
-            roles: this.state.inputValue.role,
-            email: this.state.inputValue.email,
-            password: this.state.inputValue.password,
-        };
-        console.log(newData)
-        this.showNotice()
-        axiosService.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
-            .then(res => {
-                const newArray = [...this.state.users];
-                newArray.unshift(res.user)
-                // console.log(newArray) //unshift to display item has been created upto the top
-                this.setState({
-                    users: newArray, //update new array for users list
-                    visible: false, // close modal after click "OK" button
-                    visible2: false,
-                    count: count + 1,
-                    inputValue: {
-                        firstName: '',
-                        surName: '',
-                        birthYear: '',
-                        birthPlace: '',
-                        department: '',
-                        role: '',
-                        email: '',
-                        password:'',
-                    },
-                })
-            }
-            )
-            .catch(error => {
-                console.log('error :>> ', error);
-                console.log('Update Failed');
-                // this.showNotice()
-            });
-    };
-
 
     handleUpdate = (info) => {
         delete info.birthDay;
@@ -350,6 +290,7 @@ class UserList extends React.Component {
         console.log(info);
         axiosService.put(`https://gams-temp.herokuapp.com/api/users/`, JSON.stringify(info))
             .then(res => {
+                this.showNotice()
                 const newArray = [...this.state.users].filter(user => user.id !== res.userId);
                 newArray.unshift(info)
                 console.log(res);
@@ -434,12 +375,6 @@ class UserList extends React.Component {
     render() {
         const { users, loading } = this.state;
         const {  } = this.props;
-        const components = {
-            body: {
-                row: EditableRow,
-                cell: EditableCell,
-            },
-        };
         const columns = this.columns.map(col => {
             if (!col.editable) {
                 return col;
@@ -468,116 +403,7 @@ class UserList extends React.Component {
                         handleClose={this.handleClose}
                     />
                 </div>
-                <Button
-                    onClick={() => this.showModal('add')}
-                    type="primary"
-                    style={{
-                        marginTop: '20px',
-                        marginBottom: '20px',
-                        marginLeft: '20px'
-                    }}
-                >
-                   Create A New User
-                </Button>
-                <Modal
-                    title="Create A New User"
-                    visible={this.state.visible}
-                    onOk={this.handleAdd}
-                    onCancel={this.handleCancel}
-                >
-                    <Form >
-                      <Form.Item
-                         name={['user', 'FirstName']}
-                         label="Firstname"
-                         rules={[
-                           {
-                             required: true,
-                           },
-                         ]}
-                    >
-                        <Input  value={this.state.inputValue.firstName} onChange={(e) => this.onChange("firstName", e)}/>
-                    </Form.Item>
-                    <Form.Item
-                         name={['user', 'Sur Name']}
-                         label="Surname"
-                         rules={[
-                           {
-                             required: true,
-                           },
-                         ]}
-                    >
-                        <Input value={this.state.inputValue.surName} onChange={(e) => this.onChange("surName", e)}/>
-                    </Form.Item>
-                    <Form.Item
-                        name={['user', 'email']}
-                        label="Email"
-                        rules={[
-                          {
-                            type: 'email',
-                            required: true,
-                          },
-                        ]}
-                    >
-                        <Input value={this.state.inputValue.email} onChange={(e) => this.onChange("email", e)}/>
-                    </Form.Item>
-                    <Form.Item
-                        className="form__input"
-                        label="Password"
-                        name="password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
-                    >
-                        <Input value={this.state.inputValue.password}
-                    onChange={(e) => this.onChange("password", e)}/>
-                    </Form.Item>
-
-                    <Form.Item
-                         name={['user', 'BirthYear']}
-                         label="Birthyear"
-                         rules={[
-                           {
-                             required: true,
-                           },
-                         ]}
-                    >
-                     <Input value={this.state.inputValue.birthYear} onChange={(e) => this.onChange("birthYear", e)}/>
-                    </Form.Item>
-                    <Form.Item
-                         name={['user', 'City']}
-                         label="City"
-                         rules={[
-                           {
-                             required: true,
-                           },
-                         ]}
-                    >
-                      <Input value={this.state.inputValue.birthPlace} onChange={(e) => this.onChange("birthPlace", e)}/>
-                    </Form.Item>
-                    <Form.Item
-                         name={['user', 'roles']}
-                         label="Role"
-                         rules={[
-                           {
-                             required: true,
-                           },
-                         ]}
-                    >
-                     <Input value={this.state.inputValue.role} onChange={(e) => this.onChange("role", e)}/>
-                    </Form.Item>
-                    <Form.Item
-                         name={['user', 'DU']}
-                         label="DU"
-                         rules={[
-                           {
-                             required: true,
-                           },
-                         ]}
-                    >
-                     <Input value={this.state.inputValue.department} onChange={(e) => this.onChange("department", e)}/>
-                    </Form.Item>
-                </Form>
-                    
-                </Modal>
-                
+       
                 <Modal
                     title="Edit User"
                     visible={this.state.visible2}
@@ -587,19 +413,19 @@ class UserList extends React.Component {
                     onCancel={this.handleCancel}
                 >
 
-                    FirstName: <Input value={this.state.userEditObject.firstName} name="firstName" onChange={(event) => this.isChange(event)} />
-                    SurName: <Input value={this.state.userEditObject.surName} name="surName" onChange={(event) => this.isChange(event)} />
+                    Firstname: <Input value={this.state.userEditObject.firstName} name="firstName" onChange={(event) => this.isChange(event)} />
+                    Surname: <Input value={this.state.userEditObject.surName} name="surName" onChange={(event) => this.isChange(event)} />
                     Email: <Input value={this.state.userEditObject.email} name="email" onChange={(event) => this.isChange(event)} />
                     Password: <Input value={this.state.inputValue.password} name="password"  onChange={(event) => this.isChange(event)}/>
-                    BirthYear: <Input value={this.state.userEditObject.birthYear} name="birthYear" onChange={(event) => this.isChange(event)} />
+                    Birthyear: <Input value={this.state.userEditObject.birthYear} name="birthYear" onChange={(event) => this.isChange(event)} />
                     City: <Input value={this.state.userEditObject.birthPlace} name="birthPlace" onChange={(event) => this.isChange(event)} />
                     Role: <Input value={this.state.userEditObject.role} name="roles" onChange={(event) => this.isChange(event)} />
                     DU: <Input name="department" value={this.state.userEditObject.department}onChange={(event) => this.isChange(event)} />
 
                 </Modal>
+                
                 <AddUser updateStateUser={this.handleUpdateUser}/>
-                <Table
-                    components={components}
+                <Table 
                     rowClassName={() => 'editable-row'}
                     bordered
                     dataSource={this.state.users}

@@ -20,8 +20,8 @@ export default function LoginScreens() {
         Axios.post("https://gams-temp.herokuapp.com/api/auth/signin", values)
             .then(res => {
                 console.log(res)
-                if (res.data.accessToken) {
-                    Cookies.set("token", res.data.accessToken, { expires: 1 });
+                if (res.data.token) {
+                    Cookies.set("token", res.data.token, { expires: 1 });
                     history.push("/users");
                 } else {
                     console.log(res)

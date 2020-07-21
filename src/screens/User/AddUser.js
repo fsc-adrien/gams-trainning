@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Input, Button, Select } from "antd";
+import { Modal, Input, Button, Select, notification, Form } from "antd";
 import axiosService from "../../utils/axiosService";
 
 const OPTIONS = [
@@ -51,6 +51,8 @@ class AddUser extends React.Component {
         email: "",
       },
       search: "",
+      statusNotice : false,
+      statusNotice2 : false,
       userEditObject: {},
       loading: false,
       selectedItems: [],
@@ -88,9 +90,9 @@ class AddUser extends React.Component {
     };
     console.log(newData.roles);
     console.log(newData);
-    axiosService
-      .post(`https://gams-temp.herokuapp.com/api/users/`, newData)
+    axiosService.post(`https://gams-temp.herokuapp.com/api/users/`, newData)
       .then((res) => {
+        this.showNotice('sucsess')
         // const newArray = [...this.state.users];
         // newArray.unshift(res.user)
         // console.log(newArray) //unshift to display item has been created upto the top
@@ -110,8 +112,46 @@ class AddUser extends React.Component {
             password: "",
           },
         });
-      });
+      })
+      .catch(error => {
+        console.log('error :>> ', error);
+        console.log('Update Failed');
+        this.showNotice('failed')
+    });
   };
+
+  showNotice = (type) =>{
+    if(type === 'sucsess'){
+     this.openNotification();
+    }else{
+      this.openNotification1();
+    }
+  }
+
+  openNotification = () => {
+    const key = `open${Date.now()}`;
+    
+    notification.open({
+      message: 'Add A New User Successfully',
+      description:
+        'A function will be be called after the notification is closed (automatically after the "duration" time of manually).',
+      key,
+      statusNotice : false,
+    });
+  };
+
+  openNotification1 = () => {
+    const key = `open${Date.now()}`;
+    
+    notification.open({
+      message: 'Update Failed',
+      description:
+        'A function will be be called after the notification is closed (automatically after the "duration" time of manually).',
+      key,
+      statusNotice2 : false,
+    });
+  };
+
   handleOk = (e) => {
     console.log(e);
     this.setState({
@@ -143,74 +183,129 @@ class AddUser extends React.Component {
     const filteredOptions = OPTIONS.filter((o) => !selectedItems.includes(o));
     return (
       <div>
-        <Button type="primary" onClick={this.showModal}>
+        <Button type="primary"  type="primary"
+                    style={{
+                        marginTop: '20px',
+                        marginBottom: '20px',
+                        marginLeft: '20px'
+                    }} onClick={this.showModal}>
           Create A New User
         </Button>
 
         <Modal
-          title="Create A New User"
-          visible={this.state.visible}
-          onOk={this.handleAdd}
-          onCancel={this.handleCancel}
-        >
-          FirstName:{" "}
-          <Input
-            name="firstName"
-            value={this.state.inputValue.firstName}
-            onChange={(event) => this.isChange(event)}
-          />
-          SurName:{" "}
-          <Input
-            name="surName"
-            value={this.state.inputValue.surName}
-            onChange={(event) => this.isChange(event)}
-          />
-          Email:{" "}
-          <Input
-            name="email"
-            value={this.state.inputValue.email}
-            onChange={(event) => this.isChange(event)}
-          />
-          Your Password:{" "}
-          <Input
-            name="password"
-            value={this.state.inputValue.password}
-            onChange={(event) => this.isChange(event)}
-          />
-          BirthYear:{" "}
-          <Input
-            name="birthYear"
-            value={this.state.inputValue.birthYear}
-            onChange={(event) => this.isChange(event)}
-          />
-          City:{" "}
-          <Input
-            name="birthPlace"
-            value={this.state.inputValue.birthPlace}
-            onChange={(event) => this.isChange(event)}
-          />
-          Roles:
-          <Select
-            name="roles"
-            mode="multiple"
-            placeholder="Select Rows"
-            value={this.selectedItems}
-            onChange={this.handleChange}
-            style={{ width: "100%" }}
-          >
-            {filteredOptions.map((item) => (
-              <Select.Option key={item} value={item.value}>
-                {item.name}
-              </Select.Option>
-            ))}
-          </Select>
-          DU:{" "}
-          <Input
-            name="department"
-            value={this.state.inputValue.department}
-            onChange={(event) => this.isChange(event)}
-          />
-        </Modal>
+                    title="Create A New User"
+                    visible={this.state.visible}
+                    onOk={this.handleAdd}
+                    onCancel={this.handleCancel}
+                >
+                    <Form >
+                      <Form.Item
+                         name={['user', 'FirstName']}
+                         label="Firstname"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                        <Input
+                            name="firstName"
+                            value={this.state.inputValue.firstName}
+                            onChange={(event) => this.isChange(event)}
+                          />
+                    </Form.Item>
+                    <Form.Item
+                         name={['user', 'Sur Name']}
+                         label="Surname"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                        <Input  name="surName" value={this.state.inputValue.surName} onChange={(event) => this.isChange(event)}/>
+                    </Form.Item>
+                    <Form.Item
+                           name={['user', 'email']}
+                        label="Email"
+                        rules={[
+                          {
+                            type: 'email',
+                            required: true,
+                          },
+                        ]}
+                    >
+                        <Input   name="email" value={this.state.inputValue.email}onChange={(event) => this.isChange(event)}/>
+                    </Form.Item>
+                    <Form.Item
+                        className="form__input"
+                        label="Password"
+                        name={['user', 'Pass word']}
+                        rules={[{ required: true, message: 'Please input your password!' }]}
+                    >
+                        <Input name="password" value={this.state.inputValue.password} onChange={(event) => this.isChange(event)}/>
+                    </Form.Item>
+
+                    <Form.Item
+                          name={['user', 'BirthYear']}
+                         label="Birthyear"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                     <Input name="birthYear" value={this.state.inputValue.birthYear} onChange={(event) => this.isChange(event)}/>
+                    </Form.Item>
+                    <Form.Item
+                         name={['user', 'City']}
+                         label="City"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                      <Input   name="birthPlace" value={this.state.inputValue.birthPlace} onChange={(event) => this.isChange(event)}/>
+                    </Form.Item>
+                    <Form.Item
+                          name="roles"
+                         label="Role"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                     <Select
+                        mode="multiple"
+                        placeholder="Select Rows"
+                        value={this.selectedItems}
+                        onChange={this.handleChange}
+                        style={{ width: "100%" }}
+                      >
+                        {filteredOptions.map((item) => (
+                          <Select.Option key={item} value={item.value}>
+                            {item.name}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                          name={['user', 'DU']}
+                         label="DU"
+                         rules={[
+                           {
+                             required: true,
+                           },
+                         ]}
+                    >
+                     <Input  name="department" value={this.state.inputValue.department} onChange={(event) => this.isChange(event)}/>
+                    </Form.Item>
+                </Form>
+                    
+                </Modal>
+                
       </div>
     );
   }
