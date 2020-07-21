@@ -7,6 +7,7 @@ import {
     SET_TYPES,
     SET_MANUFACTURERS,
     SET_ASSETS,
+    SET_STATUS,
 } from "../actions/constant";
 
 const initialState = {
@@ -17,6 +18,7 @@ const initialState = {
     manufacturers: [],
     suppliers: [],
     sites: [],
+    status: [],
 };
 
 const assetReducer = (state = initialState, action) => {
@@ -60,6 +62,11 @@ const assetReducer = (state = initialState, action) => {
             return {
                 ...state,
                 types: action.payload,
+            }
+        case SET_STATUS:
+            return {
+                ...state,
+                status: action.payload,
             }
         default:
             return state;

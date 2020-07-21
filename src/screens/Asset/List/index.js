@@ -1,10 +1,8 @@
 import React from "react";
-import { Table, Row, Col, Modal, Button } from "antd";
+import { Table, Col, Button } from "antd";
 import { SearchOutlined, PlusOutlined, MoreOutlined, } from '@ant-design/icons';
-import ModalInput from "../../../components/ModalInput";
 import "./index.scss";
 import { SearchInput } from "./SearchInput";
-import Divider from "../../../components/Seperate";
 import { connect } from "react-redux";
 import axiosService from "../../../utils/axiosService";
 import { ENDPOINT, API_ASSET } from "../../../constants/api";
@@ -60,26 +58,16 @@ class TabList extends React.Component {
                 title: "Status",
                 dataIndex: "assetStatus",
                 filters: [
-                    {
-                        text: 'Available',
-                        value: 'Available',
-                    },
-                    {
-                        text: 'In use',
-                        value: 'In Use',
-                    },
-                    {
-                        text: 'Destroyed',
-                        value: 'Destroyed',
-                    },
-                    {
-                        text: 'Pending Infomation',
-                        value: 'Pending Infomation',
-                    },
-                    {
-                        text: 'Lost',
-                        value: 'Lost',
-                    },
+                    { id: "0", value: "Available", text: "Available" },
+                    { id: "1", value: "In Use", text: "In Use" },
+                    { id: "2", value: "Lost", text: "Lost" },
+                    { id: "3", value: "Liquidated", text: "Liquidated" },
+                    { id: "4", value: "Under Repair", text: "Under Repair" },
+                    { id: "5", value: "Malfunctioning", text: "Malfunctioning" },
+                    { id: "6", value: "Pending Confirmation", text: "Pending Confirmation" },
+                    { id: "7", value: "Checked out", text: "Checked out" },
+                    { id: "8", value: "Destroyed", text: "Destroyed" },
+                    { id: "9", value: "Expired", text: "Expired" },
                 ],
                 onFilter: (value, record) => record.assetStatus.indexOf(value) === 0,
                 width: 60,
@@ -242,6 +230,7 @@ class TabList extends React.Component {
                 isOpenAddAsset: !prevState.isOpenAddAsset,
                 type: "",
                 group: "",
+                groupsValues: [],
                 modalValue: {
                     name: "",
                     note: "",
@@ -265,11 +254,12 @@ class TabList extends React.Component {
 
     // select type
     handleChooseSelect = (value, field) => {
-        const { modalValue, type } = this.state;
+        const { modalValue } = this.state;
         if (field === 'type' || field === 'group') {
             this.setState({
                 [field]: value,
             }, () => {
+                const { type } = this.state;
                 if (field === 'type')
                     this.handleFomatGroupValues(type)
             })
@@ -472,7 +462,8 @@ const mapStateToProps = (state) => {
         manufacturers: state.assetReducer.manufacturers,
         suppliers: state.assetReducer.suppliers,
         sites: state.assetReducer.sites,
-        assets: state.assetReducer.assets
+        assets: state.assetReducer.assets,
+        status: state.assetReducer.status
     };
 }
 

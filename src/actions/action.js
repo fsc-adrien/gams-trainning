@@ -1,4 +1,17 @@
-import { ADD_USER, EDIT_USER, DELETE_USER, CHOOSE_ASSET, CLEAR_ASSET, SET_GROUPS, SET_SUPPLIERS, SET_SITES, SET_MANUFACTURERS, SET_TYPES, SET_ASSETS } from "./constant";
+import {
+    ADD_USER,
+    EDIT_USER,
+    DELETE_USER,
+    CHOOSE_ASSET,
+    CLEAR_ASSET,
+    SET_GROUPS,
+    SET_SUPPLIERS,
+    SET_SITES,
+    SET_MANUFACTURERS,
+    SET_TYPES,
+    SET_ASSETS,
+    SET_STATUS
+} from "./constant";
 // USER
 export const addUser = (id) => {
     return {
@@ -74,5 +87,12 @@ export const setAssets = (assets) => {
     return {
         type: SET_ASSETS,
         payload: assets
+    }
+}
+
+export const setStatus = (status) => {
+    return {
+        type: SET_STATUS,
+        payload: status
     }
 }

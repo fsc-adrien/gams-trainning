@@ -5,9 +5,9 @@ import TabDetail from "./Detail";
 import TabHistory from "./History";
 import "./index.scss";
 import { useSelector, useDispatch } from "react-redux";
-import { chooseAsset, clearAsset, setGroups, setManufacturers, setSites, setSuppliers, setTypes } from "../../actions/action";
+import { chooseAsset, clearAsset, setGroups, setManufacturers, setSites, setSuppliers, setTypes, setStatus } from "../../actions/action";
 import axiosService from '../../utils/axiosService';
-import { ENDPOINT, API_TYPE, API_GROUP, API_SUPPLIER, API_SITE, API_MANUFACTURER } from "../../constants/api";
+import { ENDPOINT, API_TYPE, API_GROUP, API_SUPPLIER, API_SITE, API_MANUFACTURER, API_STATUS } from "../../constants/api";
 
 const { TabPane } = Tabs;
 
@@ -30,6 +30,8 @@ export default function Asset() {
             dispatch(setSites(sites))
             const suppliers = await axiosService.get(`${ENDPOINT}${API_SUPPLIER}`);
             dispatch(setSuppliers(suppliers))
+            const status = await axiosService.get(`${ENDPOINT}${API_STATUS}`);
+            dispatch(setStatus(status))
         }
         fetchData();
     }, [dispatch]);

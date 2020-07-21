@@ -18,7 +18,6 @@ export default function LoginScreens() {
         setLoading(true);
         Axios.post("https://gams-temp.herokuapp.com/api/auth/signin", values)
             .then(res => {
-                console.log(res)
                 if (res.data.token) {
                     Cookies.set("token", res.data.token, { expires: 1 });
                     history.push("/users");
@@ -28,6 +27,9 @@ export default function LoginScreens() {
                 }
                 if (res.data.fullName) {
                     Cookies.set("fullName", res.data.fullName, { expires: 1 });
+                }
+                if (res.data.id) {
+                    Cookies.set("id", res.data.id, { expires: 1 });
                 }
             })
             .catch((err) => setError("Request failed with status code 401"))

@@ -7,11 +7,15 @@ import './index.scss';
 
 export default function Header() {
     const history = useHistory();
+    const fullname = Cookies.get("fullName");
+    const department = Cookies.get("department");
+
 
     const handleLogout = () => {
         Cookies.remove("token");
         Cookies.remove("fullName");
         Cookies.remove("department");
+        Cookies.remove("id");
         history.push("/");
     }
 
@@ -39,6 +43,7 @@ export default function Header() {
                 </Col>
                 <Col span={11}>
                     <div className="header__logout">
+                        <p>{fullname + ' - ' + department}</p>
                         <Button onClick={handleLogout} className="btnLogout">Logout</Button>
                     </div>
                 </Col>

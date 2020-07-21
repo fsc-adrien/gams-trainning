@@ -12,6 +12,8 @@ export const SET_MANUFACTURERS = 'SET_MANUFACTURERS';
 export const SET_SUPPLIERS = 'SET_SUPPLIERS';
 export const SET_SITES = 'SET_SITES';
 export const SET_ASSETS = 'SET_ASSETS';
+export const SET_STATUS = 'SET_STATUS';
+
 
 
 

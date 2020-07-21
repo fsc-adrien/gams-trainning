@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
-import { CloseOutlined } from '@ant-design/icons';
 import "./index.scss";
-import { Button, Row, Col, AutoComplete, Tag } from 'antd';
+import { Button, Row, Col, AutoComplete, Tag, message } from 'antd';
 import Divider from '../../../components/Seperate';
 import ModalInput from '../../../components/ModalInput';
 import axiosService from '../../../utils/axiosService';
@@ -17,13 +16,15 @@ export default function TabDetail() {
         groups,
         manufacturers,
         suppliers,
-        sites
+        sites,
+        status
     } = assetState;
     const dispatch = useDispatch();
     const [editing, setEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [editForm, setEditForm] = useState({});
     const [groupValues, setGroupValues] = useState(groups);
+    const [autoSearchVal, setAutoSearchVal] = useState("");
     const [autoOptions, setAutoOptions] = useState([]);
     const [chosenAssociatedAsset, setChosenAssociatedAsset] = useState([]);
 
@@ -41,20 +42,23 @@ export default function TabDetail() {
             })
             .catch(err => console.log('err', err))
             .finally(() => setLoading(false));
-    }, [chosenAsset])
+    }, [chosenAsset, groups])
 
     // componentDidUpdate
     useEffect(() => {
         const { ciaA, ciaC, ciaI } = editForm;
+        let sum;
         if (ciaI > 0 && ciaA > 0 && ciaC > 0) {
-            const sum = ciaA + ciaC + ciaI;
-            setEditForm(prevState => {
-                return {
-                    ...prevState,
-                    'ciaSum': sum
-                }
-            })
+            sum = ciaA + ciaC + ciaI;
+        } else {
+            sum = 'N/A';
         }
+        setEditForm(prevState => {
+            return {
+                ...prevState,
+                'ciaSum': sum
+            }
+        })
     }, [editForm.ciaI, editForm.ciaC, editForm.ciaA])
 
     // componentDidUpdate
@@ -77,10 +81,12 @@ export default function TabDetail() {
         });
     }, [editForm.ciaSum])
 
+    // edit on
     const handleEditing = () => {
         setEditing(true);
     }
 
+    // change input
     const handleChangeInput = useCallback((e) => {
         const { name, value } = e.target;
         setEditForm(prevState => {
@@ -111,6 +117,7 @@ export default function TabDetail() {
         })
     }, []);
 
+    // search associated asset
     const handleSearchAssociated = (searchTxt) => {
         if (searchTxt && searchTxt.trim().length > 0) {
             axiosService.get(`${ENDPOINT}${API_ASSOCIATED_ASSET}?search=${searchTxt}`)
@@ -118,7 +125,7 @@ export default function TabDetail() {
                     const options = res.results.map(item => {
                         return {
                             ...item,
-                            value: item.assetCode
+                            value: item.name + "_" + item.assetCode
                         }
                     })
                     setAutoOptions(options)
@@ -126,15 +133,46 @@ export default function TabDetail() {
         }
     }
 
+    // select associated asset
     const handleSelectAssociated = (value, option) => {
-        console.log('value', option);
+        // check existed
+        const idx = chosenAssociatedAsset.findIndex(item => item.id === option.id);
+        if (idx !== -1) return
+
         let chosen = [...chosenAssociatedAsset, option];
+        let fomatEditChosen = chosen.map(item => item.assetCode);
         setChosenAssociatedAsset(chosen);
+        setEditForm(prevState => {
+            return {
+                ...prevState,
+                'associatedAssetCode': fomatEditChosen,
+            }
+        });
+        setAutoSearchVal("");
     }
 
+    // remove assiciated asset
+    const handleDeleteChosenAsset = (id) => {
+        let newChosen = chosenAssociatedAsset.filter(item => item.id !== id);
+        let fomatNewChosen = newChosen.map(item => item.assetCode);
+        setChosenAssociatedAsset(newChosen);
+        setEditForm(prevState => {
+            return {
+                ...prevState,
+                'associatedAssetCode': fomatNewChosen,
+            }
+        });
+    }
+
+    // submit edit
     const handleSubmitEdit = () => {
         console.log("Update Edit", editForm);
-        setEditing(false);
+        if (editForm.name?.trim().length > 0 && editForm.assetGroup && editForm.manufacturer && editForm.supplier) {
+            setAutoSearchVal("");
+            setEditing(false);
+        } else {
+            message.error("Please enter all required fields");
+        }
     }
 
     return (
@@ -174,13 +212,16 @@ export default function TabDetail() {
                                     options={autoOptions}
                                     onSelect={handleSelectAssociated}
                                     onSearch={handleSearchAssociated}
+                                    onChange={value => setAutoSearchVal(value)}
+                                    onBlur={() => setAutoSearchVal("")}
                                     disabled={!editing}
+                                    value={autoSearchVal}
                                 />
                                 <div style={{ marginTop: '10px' }}>
                                     {
                                         chosenAssociatedAsset?.length > 0 &&
                                         chosenAssociatedAsset.map(item => {
-                                            return <Tag closable onClose={() => { }}>{item.name}</Tag>
+                                            return <Tag key={item.id} closable onClose={() => editing && handleDeleteChosenAsset(item.id)}>{item.name} - {item.assetCode}</Tag>
                                         })
                                     }
                                 </div>
@@ -235,12 +276,13 @@ export default function TabDetail() {
                 <Row justify="space-between">
                     <Col span={10}>
                         <ModalInput
-                            type="input"
+                            type="select"
+                            optionSelectValue={status}
                             label="Status"
-                            name="status"
-                            onChange={handleChangeInput}
+                            name="assetStatus"
+                            onChange={(value) => handleChooseSelect(value, 'assetStatus')}
                             disabled={!editing}
-                            value={editForm.assetStatus}
+                            value={Number.parseInt(editForm.assetStatus)}
                         />
                         <ModalInput
                             type="input"
@@ -257,7 +299,7 @@ export default function TabDetail() {
                             label="Site"
                             required
                             optionSelectValue={sites}
-                            name="site"
+                            name="officeSite"
                             placeholder="Select a Site"
                             onChange={(value) => handleChooseSelect(value, 'officeSite')}
                             disabled={!editing}
