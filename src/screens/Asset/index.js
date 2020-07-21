@@ -1,5 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { Tabs } from 'antd';
+import React, { useCallback, useEffect } from "react";
 import TabList from "./List";
 import TabDetail from "./Detail";
 import TabHistory from "./History";
@@ -8,11 +7,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { chooseAsset, clearAsset, setGroups, setManufacturers, setSites, setSuppliers, setTypes, setStatus } from "../../actions/action";
 import axiosService from '../../utils/axiosService';
 import { ENDPOINT, API_TYPE, API_GROUP, API_SUPPLIER, API_SITE, API_MANUFACTURER, API_STATUS } from "../../constants/api";
-
-const { TabPane } = Tabs;
+import { Switch, Route, Link, useHistory } from "react-router-dom";
 
 export default function Asset() {
-    const [activeTab, setActiveTab] = useState("1");
+    const history = useHistory();
     const assetState = useSelector(state => state.assetReducer);
     const dispatch = useDispatch();
     const { chosenAsset } = assetState;
@@ -38,38 +36,44 @@ export default function Asset() {
 
     const handleChooseAsset = useCallback((code) => {
         dispatch(chooseAsset(code));
-        setActiveTab("2");
+        history.push(`/assets/detail/${code}`)
     }, [dispatch])
 
     const handleBackList = useCallback(() => {
         dispatch(clearAsset());
     }, [dispatch])
 
-    const handleChangeTab = (key) => {
-        setActiveTab(key)
-        if (key === '1') {
-            handleBackList();
-        }
-    }
-
     return (
         <div className="asset">
-            <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={handleChangeTab} style={{ marginLeft: '20px' }}>
-                <TabPane tab="List" key="1">
-                    <TabList onChooseAsset={handleChooseAsset} />
-                </TabPane>
+            <ul className="navBar">
+                <li className="navBar__item">
+                    <Link to="/assets">List</Link>
+                </li>
                 {
-                    chosenAsset && chosenAsset.length > 0 &&
+                    chosenAsset?.length > 0 &&
                     <>
-                        <TabPane tab="Detail" key="2">
-                            <TabDetail />
-                        </TabPane>
-                        <TabPane tab="History" key="3">
-                            <TabHistory />
-                        </TabPane>
+                        <li className="navBar__item">
+                            <Link to={`/assets/detail/${chosenAsset}`}>Detail</Link>
+                        </li>
+                        <li className="navBar__item">
+                            <Link to={`/assets/history/${chosenAsset}`}>History</Link>
+                        </li>
                     </>
                 }
-            </Tabs>
+            </ul>
+            <div className="contentWrapper">
+                <Switch>
+                    <Route exact path="/assets">
+                        <TabList onChooseAsset={handleChooseAsset} onClearChosen={handleBackList} />
+                    </Route>
+                    <Route path="/assets/detail/:id">
+                        <TabDetail />
+                    </Route>
+                    <Route path="/assets/history/:id">
+                        <TabHistory />
+                    </Route>
+                </Switch>
+            </div>
         </div>
     );
 }

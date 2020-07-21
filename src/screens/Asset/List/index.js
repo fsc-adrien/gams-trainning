@@ -200,7 +200,8 @@ class TabList extends React.Component {
     }
 
     componentDidMount() {
-        const { handleSetAssets } = this.props;
+        const { handleSetAssets, onClearChosen } = this.props;
+        onClearChosen();
         this.setState({
             loading: true
         })
