@@ -8,6 +8,7 @@ import axiosService from '../../utils/axiosService';
 import ColumnGroup from 'antd/lib/table/ColumnGroup';
 import Loading from '../../components/Loading';
 import AddUser from './AddUser';
+import Draft from './Draft';
 
 const EditableContext = React.createContext();
 
@@ -432,6 +433,7 @@ class UserList extends React.Component {
                     columns={columns}
                     loading={loading}
                 />
+                <Draft/>
                 {/* <TableDataRow/> */}
             </div>
         );
