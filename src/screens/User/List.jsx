@@ -48,8 +48,8 @@ const EditableCell = ({
             console.log('Save failed:', errInfo);
         }
     };
-    
-      
+
+
 
     let childNode = children;
 
@@ -151,13 +151,13 @@ class UserList extends React.Component {
                 fixed: 'left',
                 render: (text, record) =>
                     this.state.users.length >= 1 ? (
-                          <Space size="middle">
+                        <Space size="middle">
                             <Popconfirm title="Sure to delete?" onConfirm={() => this.handleDelete(record.id)}>
                                 <DeleteOutlined />
                             </Popconfirm>
                             <EditOutlined onClick={() => this.handleEdit(record)} />
                         </Space>
-                    ) : null,                    
+                    ) : null,
             },
         ];
         this.state = {
@@ -183,23 +183,23 @@ class UserList extends React.Component {
 
     }
 
-    
+
     componentDidMount() {
         this.setState({
-            loading:true
+            loading: true
         })
         axiosService.get(`https://gams-temp.herokuapp.com/api/users/`)
-        .then(res => {
-            const { users } = res;
-            this.setState({ 
-                users : users,        
-            });
-            
-        }).finally(() => {
-            this.setState({
-                loading: false
-            });
-        })
+            .then(res => {
+                const { users } = res;
+                this.setState({
+                    users: users,
+                });
+
+            }).finally(() => {
+                this.setState({
+                    loading: false
+                });
+            })
 
     }
 
@@ -243,7 +243,7 @@ class UserList extends React.Component {
             search: e.target.value
         })
     }
-    
+
 
     //handle delete function
     handleDelete = id => {
@@ -269,25 +269,25 @@ class UserList extends React.Component {
         });
     }
 
-    showNotice = () =>{
+    showNotice = () => {
         this.openNotification();
-      }
+    }
     openNotification = () => {
         const key = `open${Date.now()}`;
-        
+
         notification.open({
-          message: 'Update User Successfully',
-          description:
-            'A function will be be called after the notification is closed (automatically after the "duration" time of manually).',
-          key,
-          statusNotice : false,
+            message: 'Update User Successfully',
+            description:
+                'A function will be be called after the notification is closed (automatically after the "duration" time of manually).',
+            key,
+            statusNotice: false,
         });
-      };
-    
+    };
+
 
     handleUpdate = (info) => {
         delete info.birthDay;
-        const config = { headers: {'Content-Type': 'application/json' }};
+        const config = { headers: { 'Content-Type': 'application/json' } };
         console.log(info);
         axiosService.put(`https://gams-temp.herokuapp.com/api/users/`, JSON.stringify(info))
             .then(res => {
@@ -295,22 +295,22 @@ class UserList extends React.Component {
                 const newArray = [...this.state.users].filter(user => user.id !== res.userId);
                 newArray.unshift(info)
                 console.log(res);
-                    console.log('Update Success');
-                    this.setState({
-                        users: newArray, //update new array for users list
-                        visible: false, // close modal after click "OK" button
-                        visible2: false,
-                        inputValue: {
-                            firstName: '',
-                            surName: '',
-                            birthYear: '',
-                            birthPlace: '',
-                            department: '',
-                            role: '',
-                            email: '',
-                            password:'',
-                        },
-                    })
+                console.log('Update Success');
+                this.setState({
+                    users: newArray, //update new array for users list
+                    visible: false, // close modal after click "OK" button
+                    visible2: false,
+                    inputValue: {
+                        firstName: '',
+                        surName: '',
+                        birthYear: '',
+                        birthPlace: '',
+                        department: '',
+                        role: '',
+                        email: '',
+                        password: '',
+                    },
+                })
             })
             .catch(error => {
                 console.log('error :>> ', error);
@@ -342,7 +342,7 @@ class UserList extends React.Component {
 
     // show modal to fill in info to add user to list
     showModal = (type) => {
-        if(type === 'add') {
+        if (type === 'add') {
             this.setState({
                 visible: true,
             });
@@ -363,11 +363,11 @@ class UserList extends React.Component {
             visible2: false,
         });
     };
-    
+
     handleUpdateUser = (user) => {
         const newArray = [...this.state.users];
         newArray.unshift(user)
-                // console.log(newArray)
+        // console.log(newArray)
         this.setState({
             users: newArray
         })
@@ -375,7 +375,7 @@ class UserList extends React.Component {
 
     render() {
         const { users, loading } = this.state;
-        const {  } = this.props;
+        const { } = this.props;
         const columns = this.columns.map(col => {
             if (!col.editable) {
                 return col;
@@ -404,7 +404,7 @@ class UserList extends React.Component {
                         handleClose={this.handleClose}
                     />
                 </div>
-       
+
                 <Modal
                     title="Edit User"
                     visible={this.state.visible2}
@@ -417,16 +417,16 @@ class UserList extends React.Component {
                     Firstname: <Input value={this.state.userEditObject.firstName} name="firstName" onChange={(event) => this.isChange(event)} />
                     Surname: <Input value={this.state.userEditObject.surName} name="surName" onChange={(event) => this.isChange(event)} />
                     Email: <Input value={this.state.userEditObject.email} name="email" onChange={(event) => this.isChange(event)} />
-                    Password: <Input value={this.state.inputValue.password} name="password"  onChange={(event) => this.isChange(event)}/>
+                    Password: <Input value={this.state.inputValue.password} name="password" onChange={(event) => this.isChange(event)} />
                     Birthyear: <Input value={this.state.userEditObject.birthYear} name="birthYear" onChange={(event) => this.isChange(event)} />
                     City: <Input value={this.state.userEditObject.birthPlace} name="birthPlace" onChange={(event) => this.isChange(event)} />
                     Role: <Input value={this.state.userEditObject.role} name="roles" onChange={(event) => this.isChange(event)} />
-                    DU: <Input name="department" value={this.state.userEditObject.department}onChange={(event) => this.isChange(event)} />
+                    DU: <Input name="department" value={this.state.userEditObject.department} onChange={(event) => this.isChange(event)} />
 
                 </Modal>
-                
-                <AddUser updateStateUser={this.handleUpdateUser}/>
-                <Table 
+
+                <AddUser updateStateUser={this.handleUpdateUser} />
+                <Table
                     rowClassName={() => 'editable-row'}
                     bordered
                     dataSource={this.state.users}
