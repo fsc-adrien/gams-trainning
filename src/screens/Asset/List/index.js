@@ -3,6 +3,7 @@ import { Table, Col, Button, message } from "antd";
 import { SearchOutlined, PlusOutlined, MoreOutlined, } from '@ant-design/icons';
 import queryString from 'query-string';
 import { connect } from "react-redux";
+import Cookies from 'js-cookie';
 import axiosService from "../../../utils/axiosService";
 import { ENDPOINT, API_ASSET, API_SEARCH_ASSET, API_CREATE_ASSET } from "../../../constants/api";
 import { setAssets } from "../../../actions/action";
@@ -171,8 +172,8 @@ class TabList extends React.Component {
             loading: false,
             isOpenAddAsset: false,
             selectedRowKeys: [],
-            type: "",
-            group: "",
+            assetTypeId: "",
+            assetGroupId: "",
             groupsValues: [],
             modalValue: {
                 name: "",
@@ -182,13 +183,13 @@ class TabList extends React.Component {
                 createDate: "",
                 exposeDate: "",
                 unit: "",
-                site: "",
-                pic: "CHECK",
-                manufacturer: "",
-                supplier: "",
+                officeSiteId: "",
+                pic: "",
+                manufacturerId: "",
+                supplierId: "",
                 price: 0,
                 purchaseDate: "",
-                warrantly: "",
+                warrantyInMonth: "",
                 associate: "",
             },
             search: {
@@ -230,8 +231,8 @@ class TabList extends React.Component {
             return {
                 ...prevState,
                 isOpenAddAsset: !prevState.isOpenAddAsset,
-                type: "",
-                group: "",
+                assetTypeId: "",
+                assetGroupId: "",
                 groupsValues: [],
                 modalValue: {
                     name: "",
@@ -241,13 +242,13 @@ class TabList extends React.Component {
                     createDate: "",
                     exposeDate: "",
                     unit: "",
-                    site: "",
-                    pic: "",
-                    manufacturer: "",
-                    supplier: "",
+                    officeSiteId: "",
+                    pic: Cookies.get("id"),
+                    manufacturerId: "",
+                    supplierId: "",
                     price: 0,
                     purchaseDate: "",
-                    warrantly: "",
+                    warrantyInMonth: "",
                     associate: "",
                 },
             }
@@ -257,13 +258,13 @@ class TabList extends React.Component {
     // select type
     handleChooseSelect = (value, field) => {
         const { modalValue } = this.state;
-        if (field === 'type' || field === 'group') {
+        if (field === 'assetTypeId' || field === 'assetGroupId') {
             this.setState({
                 [field]: value,
             }, () => {
-                const { type } = this.state;
-                if (field === 'type')
-                    this.handleFomatGroupValues(type)
+                const { assetTypeId } = this.state;
+                if (field === 'assetTypeId')
+                    this.handleFomatGroupValues(assetTypeId)
             })
         } else {
             this.setState({
@@ -310,10 +311,10 @@ class TabList extends React.Component {
     // validate form
     isValidated = (type) => {
         const { modalValue } = this.state;
-        const { manufacturer, name, site, supplier } = modalValue
+        const { manufacturerId, name, officeSiteId, supplierId } = modalValue
         switch (type) {
             case 1:
-                if (name?.trim().length === 0 || manufacturer === 0 || site === 0 || supplier === 0 || !manufacturer || !site || !supplier) {
+                if (name?.trim().length === 0 || manufacturerId === 0 || officeSiteId === 0 || supplierId === 0 || !manufacturerId || !officeSiteId || !supplierId) {
                     return false;
                 } else {
                     return true;
@@ -333,40 +334,40 @@ class TabList extends React.Component {
     // handle create new asset
     handleSubmitForm = (e) => {
         e.preventDefault();
-        const { type, group, modalValue } = this.state;
-        const { createDate, exposeDate, logicAdd, manufacturer, name, note, pic, physicalAdd, price, purchaseDate, site, supplier, unit, warrantly } = modalValue
+        const { assetTypeId, assetGroupId, modalValue } = this.state;
+        const { createDate, exposeDate, logicAdd, manufacturerId, name, note, pic, physicalAdd, price, purchaseDate, officeSiteId, supplierId, unit, warrantyInMonth } = modalValue
         let submitData;
-        if (type && type === 0 || group && group === 0 || !type || !group) {
+        if ((assetTypeId && assetTypeId === 0) || (assetGroupId && assetGroupId === 0) || !assetTypeId || !assetGroupId) {
             message.error("Please fill all required fields 1");
             return;
         };
-        if (!this.isValidated(type)) {
+        if (!this.isValidated(assetTypeId)) {
             message.error("Please fill all required fields 2");
             return;
         };
-        switch (type) {
+        switch (assetTypeId) {
             case 1:
                 submitData = {
-                    type,
-                    group,
+                    assetTypeId,
+                    assetGroupId,
                     name,
                     note,
                     unit,
-                    site,
+                    officeSiteId,
                     pic,
-                    manufacturer,
-                    supplier,
+                    manufacturerId,
+                    supplierId,
                     price,
                     purchaseDate,
                     createDate,
                     exposeDate,
-                    warrantly
+                    warrantyInMonth
                 }
                 break;
             case 2:
                 submitData = {
-                    type,
-                    group,
+                    assetTypeId,
+                    assetGroupId,
                     name,
                     note,
                     logicAdd,
@@ -377,8 +378,8 @@ class TabList extends React.Component {
                 break;
             case 3:
                 submitData = {
-                    type,
-                    group,
+                    assetTypeId,
+                    assetGroupId,
                     name,
                     note,
                     purchaseDate,
@@ -390,11 +391,16 @@ class TabList extends React.Component {
             default:
                 break;
         }
-        console.log('submitData', submitData)
-        // axiosService.post(`${ENDPOINT}${API_CREATE_ASSET}`, submitData)
-        //     .then(res => console.log('res', res))
-        //     .catch(err => console.log('err', err))
-        //     .finally(() => { })
+        axiosService.post(`${ENDPOINT}${API_CREATE_ASSET}`, submitData)
+            .then(res => {
+                if (res.message) {
+                    message.success(res.message)
+                    this.handleToggleAddAsset();
+                };
+
+            })
+            .catch(err => console.log('err', err))
+            .finally(() => { })
     }
 
     onSelectChange = selectedRowKeys => {
@@ -443,7 +449,7 @@ class TabList extends React.Component {
     }
 
     render() {
-        const { isOpenAddAsset, type, selectedRowKeys, group, loading, groupsValues, modalValue } = this.state;
+        const { isOpenAddAsset, assetTypeId, selectedRowKeys, assetGroupId, loading, groupsValues, modalValue } = this.state;
         const { types, assets, sites, manufacturers, suppliers } = this.props;
         const rowSelection = {
             selectedRowKeys,
@@ -451,7 +457,6 @@ class TabList extends React.Component {
             onChange: this.onSelectChange,
         };
 
-        console.log('modalValue', modalValue)
         const tableScroll = window.innerHeight - 390;
 
         return (
@@ -461,8 +466,8 @@ class TabList extends React.Component {
                     isOpenAddAsset &&
                     <AddModal
                         visible={isOpenAddAsset}
-                        type={type}
-                        group={group}
+                        type={assetTypeId}
+                        group={assetGroupId}
                         modalValue={modalValue}
                         types={types}
                         groups={groupsValues}

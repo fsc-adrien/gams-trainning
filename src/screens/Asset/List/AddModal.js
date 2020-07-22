@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react'
 import Modal from 'antd/lib/modal/Modal'
 import { Col, Row } from 'antd'
 import PropTypes from 'prop-types'
+import Cookies from 'js-cookie'
 import ModalInput from '../../../components/ModalInput'
-import Cookies from 'js-cookie';
 import Divider from '../../../components/Seperate'
 
 export class AddModal extends PureComponent {
@@ -27,7 +27,7 @@ export class AddModal extends PureComponent {
     // render general field of modal
     renderGeneralField = (type) => {
         const { sites, handleOnChangeText, handleOnSelect, modalValue } = this.props;
-        const { name, unit, note, associate, site, pic } = modalValue;
+        const { name, unit, note, associate, site } = modalValue;
 
         return (
             // General
@@ -85,10 +85,10 @@ export class AddModal extends PureComponent {
                                     type="select"
                                     label="Site"
                                     required
-                                    name="site"
+                                    name="officeSiteId"
                                     value={site}
                                     placeholder="Select a site"
-                                    onChange={(value) => handleOnSelect(value, "site")}
+                                    onChange={(value) => handleOnSelect(value, "officeSiteId")}
                                     optionSelectValue={sites}
                                 />
                             </Col>
@@ -162,7 +162,7 @@ export class AddModal extends PureComponent {
     // render purchasing field of modal
     renderPurchasingField = (type) => {
         const { manufacturers, suppliers, modalValue, handleOnChangeText, handleOnSelect, handleOnChangeDate } = this.props;
-        const { manufacturer, warrantly, logicAdd, physicalAdd, supplier } = modalValue;
+        const { manufacturer, warrantly, logicAdd, physicalAdd, supplier, price } = modalValue;
 
         return (
             //Purchasing
@@ -177,9 +177,9 @@ export class AddModal extends PureComponent {
                                 type="select"
                                 label="Manufacturer"
                                 required
-                                name="manufacturer"
+                                name="manufacturerId"
                                 placeholder="Select a manufacturer"
-                                onChange={(value) => handleOnSelect(value, "manufacturer")}
+                                onChange={(value) => handleOnSelect(value, "manufacturerId")}
                                 optionSelectValue={manufacturers}
                                 value={manufacturer}
                             />
@@ -189,29 +189,31 @@ export class AddModal extends PureComponent {
                                 type="select"
                                 label="Supplier"
                                 required
-                                name="supplier"
+                                name="supplierId"
                                 placeholder="Select a supplier"
-                                onChange={(value) => handleOnSelect(value, "supplier")}
+                                onChange={(value) => handleOnSelect(value, "supplierId")}
                                 optionSelectValue={suppliers}
                                 value={supplier}
                             />
                         </Col>
                     </Row>
                 }
+
                 <Row className="modal-add__section__item" style={{ height: '40px' }} justify="space-between">
                     <Col span={10}>
                         <ModalInput
-                            type="datepicker"
-                            label="Created Date"
-                            name="createDate"
-                            onChange={handleOnChangeDate}
+                            type="input"
+                            label="Price (VND)"
+                            name="price"
+                            value={price}
+                            onChange={handleOnChangeText}
                         />
                     </Col>
                     <Col span={10}>
                         <ModalInput
                             type="datepicker"
-                            label="Expose Date"
-                            name="exposeDate"
+                            label="Purchase Date"
+                            name="purchaseDate"
                             onChange={handleOnChangeDate}
                         />
                     </Col>
@@ -223,7 +225,7 @@ export class AddModal extends PureComponent {
                             <ModalInput
                                 type="input"
                                 label="Warrantly (Month)"
-                                name="warrantly"
+                                name="warrantyInMonth"
                                 onChange={handleOnChangeText}
                                 value={warrantly}
                             />
@@ -274,7 +276,7 @@ export class AddModal extends PureComponent {
     }
     render() {
         const { type, handleOnSelect, handleOpen, handleSubmit, visible, types, groups, group } = this.props;
-        console.log(this.props.modalValue)
+
         return (
             <Modal
                 className="modal-add"
@@ -291,10 +293,10 @@ export class AddModal extends PureComponent {
                             label="Type"
                             required
                             optionSelectValue={types}
-                            name="type"
+                            name="assetTypeId"
                             placeholder="Select a type"
                             value={type}
-                            onChange={(value) => handleOnSelect(value, "type")}
+                            onChange={(value) => handleOnSelect(value, "assetTypeId")}
                         />
                     </Col>
                     <Col span={10}>
@@ -303,10 +305,10 @@ export class AddModal extends PureComponent {
                             label="Group"
                             required
                             optionSelectValue={groups}
-                            name="group"
+                            name="assetGroupId"
                             value={group}
                             placeholder="Select a group"
-                            onChange={(value) => handleOnSelect(value, "group")}
+                            onChange={(value) => handleOnSelect(value, "assetGroupId")}
                         />
                     </Col>
                 </Row>
