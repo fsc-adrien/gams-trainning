@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { Col, Row, Button } from 'antd';
 import Cookies from 'js-cookie';
@@ -7,9 +7,13 @@ import './index.scss';
 
 export default function Header() {
     const history = useHistory();
-    const fullname = Cookies.get("fullName");
-    const department = Cookies.get("department");
+    const [fullName, setFullName] = useState("");
+    const [du, setDu] = useState("");
 
+    useEffect(() => {
+        setFullName(Cookies.get("fullName"));
+        setDu(Cookies.get("department"));
+    }, []);
 
     const handleLogout = () => {
         Cookies.remove("token");
@@ -43,7 +47,7 @@ export default function Header() {
                 </Col>
                 <Col span={11}>
                     <div className="header__logout">
-                        <p>{fullname + ' - ' + department}</p>
+                        <p>{fullName + ' - ' + du}</p>
                         <Button onClick={handleLogout} className="btnLogout">Logout</Button>
                     </div>
                 </Col>

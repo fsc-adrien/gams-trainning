@@ -221,7 +221,7 @@ export default function TabDetail() {
                                     {
                                         chosenAssociatedAsset?.length > 0 &&
                                         chosenAssociatedAsset.map(item => {
-                                            return <Tag key={item.id} closable onClose={() => editing && handleDeleteChosenAsset(item.id)}>{item.name} - {item.assetCode}</Tag>
+                                            return <Tag key={item.id} closable={editing} onClose={() => editing && handleDeleteChosenAsset(item.id)}>{item.name} - {item.assetCode}</Tag>
                                         })
                                     }
                                 </div>
@@ -281,7 +281,7 @@ export default function TabDetail() {
                             label="Status"
                             name="assetStatus"
                             onChange={(value) => handleChooseSelect(value, 'assetStatus')}
-                            disabled={!editing}
+                            disabled
                             value={Number.parseInt(editForm.assetStatus)}
                         />
                         <ModalInput
@@ -289,7 +289,7 @@ export default function TabDetail() {
                             label="Owner"
                             name="owner"
                             onChange={handleChangeInput}
-                            disabled={!editing}
+                            disabled
                             value={editForm.owner}
                         />
                     </Col>
@@ -302,7 +302,7 @@ export default function TabDetail() {
                             name="officeSite"
                             placeholder="Select a Site"
                             onChange={(value) => handleChooseSelect(value, 'officeSite')}
-                            disabled={!editing}
+                            disabled
                             value={Number.parseInt(editForm.officeSite)}
                         />
                         <ModalInput
@@ -312,7 +312,7 @@ export default function TabDetail() {
                             name="assignDateStart"
                             name2="assignDateEnd"
                             onChange={handleChangeCreateDate}
-                            disabled={!editing}
+                            disabled
                             value={editForm.assignDateStart}
                             value2={editForm.assignDateEnd}
                             line={2}

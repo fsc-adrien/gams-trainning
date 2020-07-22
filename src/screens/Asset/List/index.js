@@ -1,15 +1,16 @@
 import React from "react";
-import { Table, Col, Button } from "antd";
+import { Table, Col, Button, message } from "antd";
 import { SearchOutlined, PlusOutlined, MoreOutlined, } from '@ant-design/icons';
-import "./index.scss";
-import { SearchInput } from "./SearchInput";
+import queryString from 'query-string';
 import { connect } from "react-redux";
 import axiosService from "../../../utils/axiosService";
-import { ENDPOINT, API_ASSET } from "../../../constants/api";
+import { ENDPOINT, API_ASSET, API_SEARCH_ASSET, API_CREATE_ASSET } from "../../../constants/api";
 import { setAssets } from "../../../actions/action";
+import { SearchInput } from "./SearchInput";
 import Loading from "../../../components/Loading";
 import Tag from "../../../components/Tag";
 import AddModal from "./AddModal";
+import "./index.scss";
 
 class TabList extends React.Component {
     constructor(props) {
@@ -182,7 +183,7 @@ class TabList extends React.Component {
                 exposeDate: "",
                 unit: "",
                 site: "",
-                pic: "",
+                pic: "CHECK",
                 manufacturer: "",
                 supplier: "",
                 price: 0,
@@ -274,6 +275,7 @@ class TabList extends React.Component {
         }
     }
 
+    // get group`s option
     handleFomatGroupValues = (type) => {
         const { groups } = this.props;
         const newGroupValues = groups.filter(item => item.assetType === type);
@@ -305,12 +307,43 @@ class TabList extends React.Component {
         })
     }
 
+    // validate form
+    isValidated = (type) => {
+        const { modalValue } = this.state;
+        const { manufacturer, name, site, supplier } = modalValue
+        switch (type) {
+            case 1:
+                if (name?.trim().length === 0 || manufacturer === 0 || site === 0 || supplier === 0 || !manufacturer || !site || !supplier) {
+                    return false;
+                } else {
+                    return true;
+                }
+            case 3:
+            case 2:
+                if (name?.trim().length === 0) {
+                    return false;
+                } else {
+                    return true;
+                }
+            default:
+                break;
+        }
+    }
+
     // handle create new asset
     handleSubmitForm = (e) => {
         e.preventDefault();
         const { type, group, modalValue } = this.state;
         const { createDate, exposeDate, logicAdd, manufacturer, name, note, pic, physicalAdd, price, purchaseDate, site, supplier, unit, warrantly } = modalValue
         let submitData;
+        if (type && type === 0 || group && group === 0 || !type || !group) {
+            message.error("Please fill all required fields 1");
+            return;
+        };
+        if (!this.isValidated(type)) {
+            message.error("Please fill all required fields 2");
+            return;
+        };
         switch (type) {
             case 1:
                 submitData = {
@@ -358,6 +391,10 @@ class TabList extends React.Component {
                 break;
         }
         console.log('submitData', submitData)
+        // axiosService.post(`${ENDPOINT}${API_CREATE_ASSET}`, submitData)
+        //     .then(res => console.log('res', res))
+        //     .catch(err => console.log('err', err))
+        //     .finally(() => { })
     }
 
     onSelectChange = selectedRowKeys => {
@@ -377,7 +414,32 @@ class TabList extends React.Component {
 
     handleSearch = () => {
         const { search } = this.state;
-        console.log(search)
+        const { handleSetAssets } = this.props;
+        let query;
+        if (search?.owner?.trim().length > 0) {
+            query = queryString.stringify(search);
+        } else {
+            query = `?group=${search.group}&name=${search.name}&code=${search.code}`;
+        }
+        this.setState({
+            loading: true,
+        })
+        axiosService.get(`${ENDPOINT}${API_SEARCH_ASSET}?${query}`)
+            .then(res => {
+                const newArrAssets = res.assets.map(item => {
+                    return {
+                        ...item,
+                        key: item.assetCode,
+                    }
+                })
+                handleSetAssets(newArrAssets);
+            })
+            .catch(err => console.log('err', err))
+            .finally(() => {
+                this.setState({
+                    loading: false,
+                });
+            });
     }
 
     render() {
@@ -388,6 +450,9 @@ class TabList extends React.Component {
             columnWidth: 20,
             onChange: this.onSelectChange,
         };
+
+        console.log('modalValue', modalValue)
+        const tableScroll = window.innerHeight - 390;
 
         return (
             <div className="tabList">
@@ -446,7 +511,7 @@ class TabList extends React.Component {
                     </div>
                 </Col>
                 <Table
-                    scroll={{ y: 300 }}
+                    scroll={{ y: tableScroll }}
                     dataSource={assets}
                     rowSelection={rowSelection}
                     columns={this.columns}

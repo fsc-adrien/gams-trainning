@@ -13,17 +13,13 @@
         &__item {
             padding: 10px 24px;
             margin-right: 24px;
+            color: black;
 
-            a {
-                color: black;
-            }
-
+            &-active,
             &:hover {
                 border-bottom: 5px solid orange;
 
-                a {
-                    color: orange
-                }
+                color: orange
             }
         }
     }

@@ -9,6 +9,8 @@ const API_ASSET = "/api/assets/";
 const API_ASSET_DETAIL = "/api/assets/asset/";
 const API_ASSOCIATED_ASSET = "/api/assets/asset/assoc/";
 const API_STATUS = "/api/datasets/assets/status/";
+const API_SEARCH_ASSET = "/api/assets/search/";
+const API_CREATE_ASSET = "/api/assets/";
 
 
 export {
@@ -21,5 +23,7 @@ export {
     API_ASSET,
     API_ASSET_DETAIL,
     API_ASSOCIATED_ASSET,
-    API_STATUS
+    API_STATUS,
+    API_SEARCH_ASSET,
+    API_CREATE_ASSET
 }

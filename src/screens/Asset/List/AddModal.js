@@ -3,6 +3,7 @@ import Modal from 'antd/lib/modal/Modal'
 import { Col, Row } from 'antd'
 import PropTypes from 'prop-types'
 import ModalInput from '../../../components/ModalInput'
+import Cookies from 'js-cookie';
 import Divider from '../../../components/Seperate'
 
 export class AddModal extends PureComponent {
@@ -97,7 +98,7 @@ export class AddModal extends PureComponent {
                                     label="PIC"
                                     name="pic"
                                     disabled
-                                    value={pic}
+                                    value={Cookies.get("fullName")}
                                 />
                             </Col>
                         </Row>
@@ -273,6 +274,7 @@ export class AddModal extends PureComponent {
     }
     render() {
         const { type, handleOnSelect, handleOpen, handleSubmit, visible, types, groups, group } = this.props;
+        console.log(this.props.modalValue)
         return (
             <Modal
                 className="modal-add"

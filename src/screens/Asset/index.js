@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { chooseAsset, clearAsset, setGroups, setManufacturers, setSites, setSuppliers, setTypes, setStatus } from "../../actions/action";
 import axiosService from '../../utils/axiosService';
 import { ENDPOINT, API_TYPE, API_GROUP, API_SUPPLIER, API_SITE, API_MANUFACTURER, API_STATUS } from "../../constants/api";
-import { Switch, Route, Link, useHistory } from "react-router-dom";
+import { Switch, Route, useHistory, NavLink } from "react-router-dom";
 
 export default function Asset() {
     const history = useHistory();
@@ -46,17 +46,17 @@ export default function Asset() {
     return (
         <div className="asset">
             <ul className="navBar">
-                <li className="navBar__item">
-                    <Link to="/assets">List</Link>
+                <li>
+                    <NavLink exact className="navBar__item" to="/assets" activeClassName="navBar__item-active">List</NavLink>
                 </li>
                 {
                     chosenAsset?.length > 0 &&
                     <>
-                        <li className="navBar__item">
-                            <Link to={`/assets/detail/${chosenAsset}`}>Detail</Link>
+                        <li >
+                            <NavLink className="navBar__item" to={`/assets/detail/${chosenAsset}`} activeClassName="navBar__item-active">Detail</NavLink>
                         </li>
-                        <li className="navBar__item">
-                            <Link to={`/assets/history/${chosenAsset}`}>History</Link>
+                        <li >
+                            <NavLink className="navBar__item" to={`/assets/history/${chosenAsset}`} activeClassName="navBar__item-active">History</NavLink>
                         </li>
                     </>
                 }

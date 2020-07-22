@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./index.scss";
 import { Input, Button, Form } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
@@ -13,23 +13,22 @@ export default function LoginScreens() {
     const [error, setError] = useState("");
     const history = useHistory();
 
+    useEffect(() => {
+        const token = Cookies.get('token');
+        if (token) history.push("/users");
+    }, [])
+
     // handle login 
     const handleSignIn = (values) => {
         setLoading(true);
         Axios.post("https://gams-temp.herokuapp.com/api/auth/signin", values)
             .then(res => {
-                if (res.data.token) {
+                if (res.data) {
                     Cookies.set("token", res.data.token, { expires: 1 });
-                    history.push("/users");
-                }
-                if (res.data.department) {
                     Cookies.set("department", res.data.department, { expires: 1 });
-                }
-                if (res.data.fullName) {
                     Cookies.set("fullName", res.data.fullName, { expires: 1 });
-                }
-                if (res.data.id) {
                     Cookies.set("id", res.data.id, { expires: 1 });
+                    history.push("/users");
                 }
             })
             .catch((err) => setError("Request failed with status code 401"))
