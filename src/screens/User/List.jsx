@@ -433,7 +433,7 @@ class UserList extends React.Component {
                     columns={columns}
                     loading={loading}
                 />
-                <Draft/>
+                {/* <Draft/> */}
                 {/* <TableDataRow/> */}
             </div>
         );
