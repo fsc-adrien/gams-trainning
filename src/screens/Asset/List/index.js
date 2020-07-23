@@ -391,6 +391,9 @@ class TabList extends React.Component {
             default:
                 break;
         }
+        this.setState({
+            loading: true,
+        })
         axiosService.post(`${ENDPOINT}${API_CREATE_ASSET}`, submitData)
             .then(res => {
                 if (res.message) {
@@ -400,7 +403,11 @@ class TabList extends React.Component {
 
             })
             .catch(err => console.log('err', err))
-            .finally(() => { })
+            .finally(() => {
+                this.setState({
+                    loading: false,
+                })
+            })
     }
 
     onSelectChange = selectedRowKeys => {

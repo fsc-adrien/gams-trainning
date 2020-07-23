@@ -7,6 +7,7 @@ import ModalInput from '../../../components/ModalInput';
 import axiosService from '../../../utils/axiosService';
 import { ENDPOINT, API_ASSET_DETAIL, API_ASSOCIATED_ASSET } from '../../../constants/api';
 import Loading from '../../../components/Loading';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 
 export default function TabDetail() {
     const assetState = useSelector(state => state.assetReducer);
@@ -20,6 +21,8 @@ export default function TabDetail() {
         status
     } = assetState;
     const dispatch = useDispatch();
+    const history = useHistory();
+    const match = useRouteMatch();
     const [editing, setEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [editForm, setEditForm] = useState({});
@@ -31,8 +34,9 @@ export default function TabDetail() {
     // componentDidMount
     useEffect(() => {
         // call api here
+        const { id } = match.params;
         setLoading(true);
-        axiosService.get(`${ENDPOINT}${API_ASSET_DETAIL}${chosenAsset}`)
+        axiosService.get(`${ENDPOINT}${API_ASSET_DETAIL}${chosenAsset || id}`)
             .then(res => {
                 setEditForm(res.asset)
                 const type = Number.parseInt(res.asset.assetType);
@@ -42,7 +46,7 @@ export default function TabDetail() {
             })
             .catch(err => console.log('err', err))
             .finally(() => setLoading(false));
-    }, [chosenAsset, groups])
+    }, [])
 
     // componentDidUpdate
     useEffect(() => {

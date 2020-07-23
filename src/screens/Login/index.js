@@ -31,7 +31,7 @@ export default function LoginScreens() {
                     history.push("/users");
                 }
             })
-            .catch((err) => setError("Request failed with status code 401"))
+            .catch((err) => setError("Incorrect login data"))
             .finally(() => {
                 setLoading(false);
             })
