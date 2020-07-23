@@ -7,16 +7,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { chooseAsset, clearAsset, setGroups, setManufacturers, setSites, setSuppliers, setTypes, setStatus } from "../../actions/action";
 import axiosService from '../../utils/axiosService';
 import { ENDPOINT, API_TYPE, API_GROUP, API_SUPPLIER, API_SITE, API_MANUFACTURER, API_STATUS } from "../../constants/api";
-import { Switch, Route, useHistory, NavLink, useParams } from "react-router-dom";
+import { Switch, Route, useHistory, NavLink } from "react-router-dom";
 
 export default function Asset() {
     const history = useHistory();
     const assetState = useSelector(state => state.assetReducer);
     const dispatch = useDispatch();
-    let { id } = useParams();
     const { chosenAsset } = assetState;
-    console.log('id', id)
-    console.log('history', history)
+
     //componentDidMount
     useEffect(() => {
         const fetchData = async () => {
